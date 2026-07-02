@@ -120,14 +120,14 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
 
 /* 主帅展示区：人物 + 信息卡左右布局 */
 .hero { position: relative; z-index: 3; display: flex; align-items: center; gap: 8px; padding: 8px 16px 4px; }
-.portrait-wrap { position: relative; width: 150px; height: 200px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; }
+.portrait-wrap { position: relative; width: 140px; height: 200px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
 .aura { position: absolute; inset: -10px -20px -10px; border-radius: 50%; background: radial-gradient(circle at 50% 60%, rgba(212,164,55,0.32), transparent 65%); animation: aura 3.2s ease-in-out infinite; pointer-events: none; }
 @keyframes aura { 0%,100% { transform: scale(0.95); opacity: 0.55; } 50% { transform: scale(1.08); opacity: 1; } }
-.pedestal { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 130px; height: 14px; background: radial-gradient(ellipse at center, rgba(212,164,55,0.5), transparent 70%); filter: blur(5px); }
+.pedestal { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 120px; height: 14px; background: radial-gradient(ellipse at center, rgba(212,164,55,0.5), transparent 70%); filter: blur(5px); }
 .portrait {
   position: relative; z-index: 2;
   width: 100%; height: 100%;
-  object-fit: contain; object-position: bottom center;
+  object-fit: cover; object-position: center 30%;
   image-rendering: -webkit-optimize-contrast;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)) contrast(1.05) saturate(1.08);
   animation: portraitFloat 4s ease-in-out infinite;
