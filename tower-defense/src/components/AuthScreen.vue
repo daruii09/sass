@@ -11,6 +11,11 @@ const nickname = ref('')
 const agreed = ref(true)
 const err = ref('')
 const showPwd = ref(false)
+const heroLoaded = ref(false)
+const heroFailed = ref(false)
+
+// 真实游戏人物图片：3D 渲染中国古代将军
+const heroImgUrl = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('3D rendered Chinese ancient general warrior, full body, standing heroic pose, ornate golden armor, red cape, helmet with red feather plume, holding long sword, brave expression, game character concept art, high quality, dramatic lighting, transparent background, chibi proportion') + '&image_size=portrait_4_3'
 
 const valid = computed(() => {
   if (mode.value === 'register' && nickname.value.trim().length < 2) return false
@@ -64,22 +69,27 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
       <div class="flag" v-for="i in 5" :key="i" :style="{ left: (8+i*19)+'%', animationDelay: (i*0.7)+'s' }">令</div>
     </div>
 
-    <!-- Q 版小将吉祥物 -->
-    <div class="mascot">
-      <div class="m-head">
-        <div class="m-helmet"></div>
-        <div class="m-helmet-flag"></div>
-        <div class="m-face">
-          <div class="m-eye l"></div>
-          <div class="m-eye r"></div>
-          <div class="m-blush l"></div>
-          <div class="m-blush r"></div>
-          <div class="m-mouth"></div>
+    <!-- 真实游戏人物：3D 渲染中国古代将军 -->
+    <div class="hero-char">
+      <div class="hero-glow"></div>
+      <img v-if="!heroFailed" :src="heroImgUrl" alt="将军" class="hero-img" :class="{ loaded: heroLoaded }" @load="heroLoaded = true" @error="heroFailed = true" />
+      <!-- 加载失败时的 CSS 回退人物 -->
+      <div v-if="heroFailed" class="mascot">
+        <div class="m-head">
+          <div class="m-helmet"></div>
+          <div class="m-helmet-flag"></div>
+          <div class="m-face">
+            <div class="m-eye l"></div>
+            <div class="m-eye r"></div>
+            <div class="m-blush l"></div>
+            <div class="m-blush r"></div>
+            <div class="m-mouth"></div>
+          </div>
         </div>
-      </div>
-      <div class="m-body">
-        <div class="m-armor"></div>
-        <div class="m-arms"></div>
+        <div class="m-body">
+          <div class="m-armor"></div>
+          <div class="m-arms"></div>
+        </div>
       </div>
     </div>
 
@@ -175,8 +185,14 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
 }
 @keyframes flagFall { 0% { transform: translateY(-40px) rotate(-10deg); opacity: 0; } 10% { opacity: 0.6; } 100% { transform: translateY(720px) rotate(20deg); opacity: 0; } }
 
-/* === Q 版小将吉祥物 === */
-.mascot { position: absolute; top: 9%; right: 10%; z-index: 3; width: 76px; height: 96px; animation: mascotBob 2.6s ease-in-out infinite; }
+/* === 真实游戏人物 === */
+.hero-char { position: absolute; top: 7%; right: 8%; z-index: 3; width: 130px; height: 170px; display: flex; align-items: flex-end; justify-content: center; animation: mascotBob 2.6s ease-in-out infinite; }
+.hero-glow { position: absolute; inset: -20px; border-radius: 50%; background: radial-gradient(circle, rgba(212,164,55,0.3), transparent 65%); animation: aura 3s ease-in-out infinite; pointer-events: none; }
+.hero-img { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.6s ease; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5)); }
+.hero-img.loaded { opacity: 1; }
+
+/* === Q 版小将吉祥物（回退） === */
+.mascot { position: relative; width: 76px; height: 96px; }
 @keyframes mascotBob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
 .m-head { position: relative; width: 60px; height: 60px; margin: 0 auto; background: #ffe0c4; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
 .m-helmet { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 50px; height: 26px; background: linear-gradient(180deg, var(--gold), var(--gold-deep)); border: 3px solid var(--ink); border-radius: 28px 28px 8px 8px / 22px 22px 8px 8px; }

@@ -25,12 +25,12 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
       </div>
     </header>
 
-    <!-- 中部主帅立绘 -->
+    <!-- 中部主帅立绘：只显示3D人物，不显示背景 -->
     <div class="hero">
       <div class="pedestal"></div>
       <div class="portrait-wrap">
         <div class="aura"></div>
-        <QAsset class="portrait" variant="rank" :src="rank.asset" :name="rank.name" :icon="rankIcon" :rounded="16" />
+        <QAsset class="portrait" variant="rank" :src="rank.asset" :name="rank.name" :icon="rankIcon" :rounded="16" transparent />
         <div class="rank-badge">{{ rank.name }}</div>
       </div>
       <h2 class="name">{{ store.user?.name || '主帅' }}</h2>
@@ -109,7 +109,7 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
 .portrait-wrap { position: relative; width: 150px; height: 180px; }
 .aura { position: absolute; inset: -16px; border-radius: 50%; background: radial-gradient(circle, rgba(212,164,55,0.35), transparent 65%); animation: aura 3s ease-in-out infinite; }
 @keyframes aura { 0%,100% { transform: scale(0.95); opacity: 0.6; } 50% { transform: scale(1.08); opacity: 1; } }
-.portrait { width: 150px; height: 180px; border-radius: 16px; border: 3px solid var(--gold); box-shadow: 0 12px 30px rgba(0,0,0,0.5); position: relative; z-index: 2; }
+.portrait { width: 150px; height: 180px; border-radius: 16px; border: none; box-shadow: none; position: relative; z-index: 2; }
 .rank-badge { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); padding: 4px 16px; border-radius: 12px; background: var(--crimson); color: var(--gold-light); font-family: var(--font-display); font-size: 13px; border: 1px solid var(--gold); z-index: 3; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
 .name { font-family: var(--font-display); font-size: 22px; color: var(--gold); margin-top: 16px; letter-spacing: 3px; }
 .stats { display: flex; gap: 18px; margin-top: 10px; }

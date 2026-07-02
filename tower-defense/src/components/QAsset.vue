@@ -11,10 +11,12 @@ const props = withDefaults(defineProps<{
   tier?: number            // 塔等级 1-3
   rarity?: string          // 物品稀有度 common/rare/epic/legendary
   rounded?: number         // 圆角 px
+  transparent?: boolean    // 透明背景模式：只显示人物/图标，不显示背景框
 }>(), {
   variant: 'unit',
   tier: 0,
   rounded: 8,
+  transparent: false,
 })
 
 const failed = ref(false)
@@ -53,16 +55,16 @@ const rarityColor = computed(() => {
 </script>
 
 <template>
-  <div class="qasset" :style="{ borderRadius: rounded + 'px', background: palette.bg, '--accent': palette.accent, boxShadow: rarity !== 'common' && rarity ? `0 0 8px ${rarityColor}88` : 'none', borderColor: rarity ? rarityColor : 'rgba(212,164,55,0.4)' }">
+  <div class="qasset" :class="{ transparent }" :style="{ borderRadius: rounded + 'px', background: transparent ? 'transparent' : palette.bg, '--accent': palette.accent, boxShadow: transparent ? 'none' : (rarity !== 'common' && rarity ? `0 0 8px ${rarityColor}88` : 'none'), borderColor: transparent ? 'transparent' : (rarity ? rarityColor : 'rgba(212,164,55,0.4)') }">
     <img v-if="src && !failed" :src="src" alt="" @error="failed = true" />
     <!-- Q 版回退占位 -->
-    <div v-else class="fallback">
+    <div v-else class="fallback" :class="{ 'fb-transparent': transparent }">
       <!-- Q 版小人头/塔身剪影 -->
       <div class="chibi" :data-v="variant">
-        <span v-if="icon" class="ms ic">{{ icon }}</span>
+        <span v-if="icon" class="ms ic" :class="{ 'ic-big': transparent }">{{ icon }}</span>
         <div v-else class="dot"></div>
       </div>
-      <span v-if="name" class="nm">{{ name }}</span>
+      <span v-if="name && !transparent" class="nm">{{ name }}</span>
       <span v-if="tier" class="tier">Lv.{{ tier }}</span>
     </div>
   </div>
@@ -70,14 +72,18 @@ const rarityColor = computed(() => {
 
 <style scoped>
 .qasset { position: relative; width: 100%; height: 100%; overflow: hidden; border: 2px solid; display: flex; align-items: center; justify-content: center; }
+.qasset.transparent { border: none; background: transparent !important; box-shadow: none !important; }
 .qasset img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fallback { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; }
+.fallback.fb-transparent { padding: 0; }
 .chibi { position: relative; width: 70%; aspect-ratio: 1; max-height: 70%; display: flex; align-items: center; justify-content: center; }
 .chibi::before {
   content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
   width: 78%; height: 50%; background: rgba(0,0,0,0.22); border-radius: 50% 50% 24% 24%;
 }
+.fb-transparent .chibi::before { display: none; }
 .ic { position: relative; z-index: 2; font-size: clamp(18px, 7vw, 30px); color: var(--accent, #ffe0c4); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+.ic-big { font-size: clamp(36px, 14vw, 64px) !important; filter: drop-shadow(0 2px 8px rgba(212,164,55,0.6)) !important; }
 .dot { position: relative; z-index: 2; width: 40%; aspect-ratio: 1; border-radius: 50%; background: var(--accent, #ffe0c4); opacity: 0.7; }
 .nm { position: relative; z-index: 2; font-size: 9px; color: rgba(255,255,255,0.9); font-family: var(--font-body); text-shadow: 0 1px 2px rgba(0,0,0,0.8); text-align: center; line-height: 1.1; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tier { position: absolute; top: 2px; right: 3px; z-index: 3; font-family: var(--font-num); font-size: 8px; color: #fff; background: rgba(0,0,0,0.6); padding: 0 4px; border-radius: 4px; }

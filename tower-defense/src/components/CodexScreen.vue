@@ -47,7 +47,7 @@ const weapons = computed(() => ([
       <template v-if="tab === 'units'">
         <div v-for="u in UNITS" :key="u.id" :class="['card', { lock: rankIdx + 1 < u.unlockRank }]">
           <div class="card-img">
-            <QAsset variant="unit" :src="u.asset" :name="u.name" :icon="UNIT_ICONS[u.id] || 'person'" :rounded="14" />
+            <QAsset variant="unit" :src="u.asset" :name="u.name" :icon="UNIT_ICONS[u.id] || 'person'" :rounded="14" transparent />
             <div v-if="rankIdx + 1 < u.unlockRank" class="lock-overlay"><span class="ms">lock</span></div>
           </div>
           <div class="card-name">{{ u.name }}</div>
@@ -68,7 +68,7 @@ const weapons = computed(() => ([
       <template v-if="tab === 'towers'">
         <div v-for="t in Object.values(TOWERS)" :key="t.kind" :class="['card', { lock: rankIdx + 1 < t.unlockRank }]">
           <div class="card-img">
-            <QAsset variant="tower" :src="t.tiers[0].asset" :name="t.name" :icon="TOWER_ICONS[t.kind] || 'tower'" :tier="1" :rounded="14" />
+            <QAsset variant="tower" :src="t.tiers[0].asset" :name="t.name" :icon="TOWER_ICONS[t.kind] || 'tower'" :tier="1" :rounded="14" transparent />
             <div v-if="rankIdx + 1 < t.unlockRank" class="lock-overlay"><span class="ms">lock</span></div>
           </div>
           <div class="card-name">{{ t.name }}</div>
@@ -88,7 +88,7 @@ const weapons = computed(() => ([
       <template v-if="tab === 'enemies'">
         <div v-for="e in Object.values(ENEMIES)" :key="e.id" class="card">
           <div class="card-img">
-            <QAsset variant="enemy" :src="e.asset" :name="e.name" :icon="ENEMY_ICONS[e.id] || 'skull'" :rounded="14" />
+            <QAsset variant="enemy" :src="e.asset" :name="e.name" :icon="ENEMY_ICONS[e.id] || 'skull'" :rounded="14" transparent />
           </div>
           <div class="card-name">{{ e.name }}</div>
           <div class="card-tags">
@@ -107,7 +107,7 @@ const weapons = computed(() => ([
       <template v-if="tab === 'weapons'">
         <div v-for="w in weapons" :key="w.id" class="card">
           <div class="card-img">
-            <QAsset variant="weapon" :name="w.name" :icon="w.icon" :rounded="14" />
+            <QAsset variant="weapon" :name="w.name" :icon="w.icon" :rounded="14" transparent />
           </div>
           <div class="card-name">{{ w.name }}</div>
           <div class="card-desc">{{ w.desc }}</div>
@@ -202,11 +202,11 @@ const weapons = computed(() => ([
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 8px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 164, 55, 0.12);
+  padding: 10px 6px 8px;
+  background: transparent;
+  border: none;
   border-radius: 14px;
-  transition: border-color 0.2s, transform 0.15s;
+  transition: transform 0.15s;
 }
 
 .card:active {
@@ -220,11 +220,11 @@ const weapons = computed(() => ([
 /* ── Card Image ── */
 .card-img {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .card-img :deep(img) {
