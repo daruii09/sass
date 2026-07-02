@@ -3,760 +3,535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>金币大冒险 - 闯关赚现金</title>
+<title>烽火主帅 - 塔防闯关赚现金</title>
 <style>
-/* ===== CSS Variables ===== */
 :root {
-  --gold: #FFD700;
-  --gold-dark: #DAA520;
-  --gold-light: #FFF8DC;
-  --green: #4CAF50;
-  --green-dark: #388E3C;
-  --red: #FF5252;
-  --red-dark: #D32F2F;
-  --sky: #87CEEB;
-  --sky-dark: #5CACEE;
-  --grass: #7CFC00;
-  --grass-dark: #32CD32;
-  --sand: #F4A460;
-  --sand-dark: #D2691E;
-  --ice: #B0E0E6;
-  --ice-dark: #4682B4;
-  --text: #333333;
-  --text-light: #666666;
+  --gold: #D4A437;
+  --gold-light: #F5E6A8;
+  --gold-deep: #8B6914;
+  --crimson: #8B0000;
+  --crimson-light: #C0392B;
+  --jade: #2E7D5B;
+  --jade-light: #5DADE2;
+  --ink: #1A1A2E;
+  --ink-light: #2D2D44;
+  --parchment: #F5E6C8;
+  --parchment-dark: #E8D5A8;
+  --steel: #4A5568;
+  --text: #2D2D2D;
+  --text-light: #6B6B6B;
   --white: #FFFFFF;
-  --bg: #F0F8FF;
-  --card-bg: #FFFFFF;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
-  --radius: 24px;
-  --radius-sm: 14px;
-  --radius-xs: 10px;
-  --font-display: 'Fredoka', 'Noto Sans SC', sans-serif;
-  --font-body: 'Nunito', 'Noto Sans SC', sans-serif;
-  --font-number: 'Fredoka', monospace;
+  --shadow: 0 4px 20px rgba(0,0,0,0.15);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.2);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-display: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  --font-body: 'Noto Sans SC', sans-serif;
+  --font-number: 'Cinzel', serif;
 }
 
-/* ===== Reset & Base ===== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  width: 100%; height: 100%;
-  overflow: hidden;
-  font-family: var(--font-body);
-  background: #1a1a2e;
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font-body); background: #0D0D1A;
   display: flex; justify-content: center; align-items: center;
   -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
+  user-select: none; -webkit-user-select: none;
 }
 
-/* ===== Phone Frame ===== */
 .phone-frame {
   width: 420px; max-width: 100vw; height: 100vh; max-height: 900px;
-  background: var(--bg);
-  position: relative;
-  overflow: hidden;
-  border-radius: 0;
-  box-shadow: 0 0 0 4px #2a2a3e, 0 0 0 8px #1a1a2e, 0 0 0 12px #2a2a3e, 0 20px 60px rgba(0,0,0,0.5);
+  background: var(--ink); position: relative; overflow: hidden;
+  box-shadow: 0 0 0 3px #333, 0 0 0 6px #1a1a2e, 0 0 0 9px #333, 0 20px 60px rgba(0,0,0,0.6);
 }
-@media (max-width: 440px) {
-  .phone-frame { width: 100vw; border-radius: 0; box-shadow: none; }
-}
+@media (max-width: 440px) { .phone-frame { width: 100vw; box-shadow: none; } }
 
-/* ===== Screen Container ===== */
 .screen {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   display: flex; flex-direction: column; align-items: center;
-  opacity: 0; pointer-events: none;
+  opacity: 0; pointer-events: none; transform: translateY(15px);
   transition: opacity 0.4s ease, transform 0.4s ease;
-  transform: translateY(20px);
-  overflow-y: auto; overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
 }
-.screen.active {
-  opacity: 1; pointer-events: auto; transform: translateY(0);
-}
+.screen.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
-/* ===== Splash Screen ===== */
+/* ===== SPLASH ===== */
 #splash-screen {
-  background: linear-gradient(180deg, #1B3A5C 0%, #2D6A9F 40%, #5CACEE 70%, #B0E0E6 100%);
-  justify-content: center; gap: 20px; overflow: hidden;
+  background: linear-gradient(180deg, #1A0A00 0%, #3D0C00 30%, #6B1500 60%, #8B0000 100%);
+  justify-content: center; gap: 16px; overflow: hidden;
 }
-.splash-stars { position: absolute; width: 100%; height: 100%; pointer-events: none; }
-.splash-star {
-  position: absolute; width: 4px; height: 4px; background: white;
-  border-radius: 50%; animation: twinkle 2s ease-in-out infinite;
+.splash-bg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0.35;
 }
-@keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.8); }
+.splash-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(20,5,0,0.8) 100%);
 }
+.splash-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .splash-logo {
-  width: 180px; height: 180px; border-radius: 50%;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 72px; font-family: var(--font-display); color: white;
-  box-shadow: 0 0 60px rgba(255,215,0,0.5), 0 8px 30px rgba(0,0,0,0.2);
-  animation: logoBounce 1s ease-in-out infinite;
-  position: relative; z-index: 2;
+  width: 160px; height: 160px; border-radius: 50%; overflow: hidden;
+  border: 3px solid var(--gold); box-shadow: 0 0 40px rgba(212,164,55,0.5);
+  animation: logoGlow 2s ease-in-out infinite;
 }
-@keyframes logoBounce {
-  0%, 100% { transform: translateY(0) scale(1); }
-  30% { transform: translateY(-20px) scale(1.05); }
-  50% { transform: translateY(0) scale(1); }
-  70% { transform: translateY(-10px) scale(1.02); }
+.splash-logo img { width: 100%; height: 100%; object-fit: cover; }
+@keyframes logoGlow {
+  0%, 100% { box-shadow: 0 0 40px rgba(212,164,55,0.5); }
+  50% { box-shadow: 0 0 70px rgba(212,164,55,0.8); }
 }
 .splash-title {
-  font-size: 36px; font-family: var(--font-display); color: white;
-  font-weight: 700; text-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  letter-spacing: 2px; z-index: 2;
+  font-family: var(--font-display); font-size: 38px; color: var(--gold);
+  text-shadow: 0 0 20px rgba(212,164,55,0.6), 0 4px 10px rgba(0,0,0,0.5);
+  letter-spacing: 6px; font-weight: 700;
 }
-.splash-subtitle {
-  font-size: 15px; color: rgba(255,255,255,0.8);
-  font-family: var(--font-body); z-index: 2;
-}
-.splash-progress {
-  width: 260px; height: 8px; background: rgba(255,255,255,0.2);
-  border-radius: 4px; overflow: hidden; z-index: 2;
-}
-.splash-progress-bar {
-  height: 100%; background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
-  border-radius: 4px; width: 0%; transition: width 0.3s ease;
-  animation: shimmer 2s linear infinite;
-  background-size: 200% 100%;
-}
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-.splash-version {
-  font-size: 12px; color: rgba(255,255,255,0.5); z-index: 2;
-}
-.splash-clouds {
-  position: absolute; bottom: 0; width: 200%; height: 120px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120'%3E%3Cpath d='M0 80 Q50 40 100 80 Q150 50 200 80 Q250 40 300 80 Q350 50 400 80 L400 120 L0 120Z' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E") repeat-x;
-  background-size: 400px 120px; animation: cloudsMove 20s linear infinite;
-}
-@keyframes cloudsMove { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.splash-sub { font-size: 14px; color: rgba(245,230,168,0.7); letter-spacing: 2px; }
+.splash-bar-wrap { width: 240px; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; }
+.splash-bar { height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold), var(--gold-light)); border-radius: 3px; width: 0%; transition: width 0.3s; }
+.splash-version { font-size: 11px; color: rgba(255,255,255,0.3); }
 
-/* ===== Auth Screen (Login/Register) ===== */
-#auth-screen { background: linear-gradient(180deg, #E8F5E9, #C8E6C9, #A5D6A7); justify-content: center; }
-.auth-container { width: 85%; max-width: 340px; display: flex; flex-direction: column; gap: 16px; }
-.auth-header {
-  text-align: center; margin-bottom: 8px;
+/* ===== AUTH ===== */
+#auth-screen {
+  background: linear-gradient(180deg, #1A1A2E, #2D2D44);
+  justify-content: center;
 }
-.auth-header .auth-icon {
-  width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FFD700, #FFA500);
-  display: flex; align-items: center; justify-content: center; font-size: 40px;
-  margin: 0 auto 12px; box-shadow: 0 0 30px rgba(255,215,0,0.4);
-}
-.auth-header h2 {
-  font-family: var(--font-display); font-size: 28px; color: var(--text);
-  font-weight: 700;
-}
-.auth-header p { font-size: 14px; color: var(--text-light); margin-top: 4px; }
-.auth-tabs {
-  display: flex; background: rgba(255,255,255,0.7); border-radius: var(--radius-xs);
-  padding: 4px; margin-bottom: 4px;
-}
-.auth-tab {
-  flex: 1; padding: 12px; text-align: center; font-size: 15px; font-weight: 600;
-  border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
-  color: var(--text-light); font-family: var(--font-body);
-}
-.auth-tab.active { background: white; color: var(--green-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.auth-form { display: flex; flex-direction: column; gap: 12px; }
-.auth-input {
-  width: 100%; padding: 14px 16px; border-radius: var(--radius-sm); border: 2px solid rgba(0,0,0,0.08);
-  font-size: 15px; font-family: var(--font-body); background: white; outline: none;
-  transition: border-color 0.3s ease;
-}
-.auth-input:focus { border-color: var(--green); }
-.auth-btn {
-  width: 100%; padding: 16px; border-radius: var(--radius-sm); border: none;
-  font-size: 17px; font-weight: 700; cursor: pointer; color: white;
-  font-family: var(--font-display);
-  background: linear-gradient(135deg, #4CAF50, #66BB6A);
-  box-shadow: 0 6px 20px rgba(76,175,80,0.35);
-  transition: all 0.3s ease; letter-spacing: 1px;
-}
+.auth-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; }
+.auth-container { width: 88%; max-width: 340px; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 14px; }
+.auth-header { text-align: center; margin-bottom: 8px; }
+.auth-header h2 { font-family: var(--font-display); font-size: 26px; color: var(--gold); letter-spacing: 3px; }
+.auth-header p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.auth-tabs { display: flex; background: rgba(255,255,255,0.08); border-radius: 8px; padding: 4px; }
+.auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; border-radius: 6px; cursor: pointer; color: rgba(255,255,255,0.4); transition: all 0.3s; }
+.auth-tab.active { background: var(--gold); color: var(--ink); }
+.auth-input { width: 100%; padding: 14px 16px; border-radius: 10px; border: 1px solid rgba(212,164,55,0.3); font-size: 15px; background: rgba(255,255,255,0.08); color: white; outline: none; }
+.auth-input::placeholder { color: rgba(255,255,255,0.3); }
+.auth-input:focus { border-color: var(--gold); background: rgba(255,255,255,0.12); }
+.auth-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; font-family: var(--font-display); letter-spacing: 2px; background: linear-gradient(135deg, var(--gold-deep), var(--gold)); color: var(--ink); box-shadow: 0 6px 20px rgba(212,164,55,0.3); }
 .auth-btn:active { transform: scale(0.96); }
-.auth-btn.secondary {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  box-shadow: 0 6px 20px rgba(255,215,0,0.35);
-}
-.auth-divider {
-  display: flex; align-items: center; gap: 12px; color: var(--text-light);
-  font-size: 13px;
-}
-.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.1); }
+.auth-btn.secondary { background: rgba(255,255,255,0.1); color: var(--gold-light); border: 1px solid var(--gold); }
+.auth-divider { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.3); font-size: 12px; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
 
-/* ===== Main Menu ===== */
-#main-screen {
-  background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 30%, #E0F7FA 60%, #F1F8E9 100%);
-  padding: 0; gap: 0;
-}
+/* ===== MAIN ===== */
+#main-screen { background: var(--ink); padding: 0; }
+.main-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; }
 .main-top {
-  width: 100%; padding: 20px 24px 12px;
-  display: flex; justify-content: space-between; align-items: center;
-  background: rgba(255,255,255,0.3); backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,255,255,0.5);
-  flex-shrink: 0;
+  width: 100%; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.6), transparent); position: relative; z-index: 2; flex-shrink: 0;
 }
-.main-balance {
-  display: flex; gap: 16px;
-}
-.balance-item {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.8); padding: 8px 14px;
-  border-radius: 20px; font-size: 14px; font-weight: 700;
-  font-family: var(--font-number); box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.balance-icon {
-  width: 28px; height: 28px; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; font-size: 16px;
-}
-.balance-icon.gold { background: #FFF8DC; }
-.balance-icon.cash { background: #E8F5E9; }
-.main-settings {
-  width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.8);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
-  font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.main-hero {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  position: relative; overflow: hidden; min-height: 280px;
-}
-.hero-float {
-  font-size: 120px; animation: heroFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
-}
-@keyframes heroFloat {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-15px) rotate(3deg); }
-}
-.hero-ground {
-  position: absolute; bottom: 0; width: 100%; height: 60px;
-  background: linear-gradient(180deg, transparent, rgba(124,252,0,0.3));
-  border-radius: 50% 50% 0 0;
-}
-.hero-label {
-  font-family: var(--font-display); font-size: 22px; color: var(--text);
-  font-weight: 700; margin-top: -10px;
-}
-.hero-coins {
-  display: flex; gap: 16px; margin-top: 8px;
-}
-.hero-coin {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  animation: coinSpin 2s ease-in-out infinite;
-  box-shadow: 0 4px 15px rgba(255,215,0,0.4);
-}
-.hero-coin:nth-child(2) { animation-delay: 0.3s; width: 28px; height: 28px; }
-.hero-coin:nth-child(3) { animation-delay: 0.6s; width: 32px; height: 32px; }
-@keyframes coinSpin {
-  0%, 100% { transform: rotateY(0deg) scale(1); }
-  50% { transform: rotateY(180deg) scale(0.8); }
-}
-.main-actions {
-  width: 100%; padding: 0 24px 20px; display: flex; flex-direction: column;
-  gap: 10px; flex-shrink: 0;
-}
-.btn-play {
-  width: 100%; padding: 18px; border-radius: var(--radius); border: none;
-  font-size: 20px; font-weight: 700; cursor: pointer; color: white;
-  font-family: var(--font-display); letter-spacing: 2px;
-  background: linear-gradient(135deg, #FF6B35, #FF8C42, #FF6B35);
-  box-shadow: 0 8px 25px rgba(255,107,53,0.4);
-  transition: all 0.3s ease; position: relative; overflow: hidden;
-}
-.btn-play::after {
-  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
-  animation: btnShine 3s ease-in-out infinite;
-}
-@keyframes btnShine {
-  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-.btn-play:active { transform: scale(0.96); }
-.main-bottom-nav {
-  width: 100%; padding: 12px 24px 20px;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-shrink: 0;
-}
-.nav-item {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  cursor: pointer; transition: all 0.3s ease;
-}
-.nav-item .nav-icon {
-  width: 48px; height: 48px; border-radius: 16px; display: flex;
-  align-items: center; justify-content: center; font-size: 24px;
-  background: rgba(255,255,255,0.7); box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-  transition: all 0.3s ease;
-}
-.nav-item:active .nav-icon { transform: scale(0.9); }
-.nav-item .nav-label { font-size: 11px; color: var(--text-light); font-weight: 600; }
+.main-balance { display: flex; gap: 8px; }
+.balance-chip { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,164,55,0.3); font-size: 13px; font-weight: 700; color: var(--gold-light); font-family: var(--font-number); }
+.balance-chip.cash { color: #6BFF9E; border-color: rgba(107,255,158,0.3); }
+.main-icon-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--gold-light); }
+.main-hero-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 2; padding: 20px; }
+.commander-portrait { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; border: 3px solid var(--gold); box-shadow: 0 0 30px rgba(212,164,55,0.4); position: relative; }
+.commander-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.commander-rank-badge { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); padding: 3px 14px; border-radius: 12px; background: var(--crimson); color: var(--gold-light); font-size: 12px; font-weight: 700; font-family: var(--font-display); white-space: nowrap; border: 1px solid var(--gold); }
+.commander-name { font-family: var(--font-display); font-size: 22px; color: var(--gold); margin-top: 14px; letter-spacing: 2px; }
+.commander-stats { display: flex; gap: 16px; margin-top: 8px; }
+.cmd-stat { text-align: center; }
+.cmd-stat .stat-val { font-size: 18px; font-weight: 700; color: var(--gold-light); font-family: var(--font-number); }
+.cmd-stat .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.5); }
+.main-actions { width: 100%; padding: 0 20px 12px; position: relative; z-index: 2; flex-shrink: 0; }
+.btn-battle { width: 100%; padding: 18px; border-radius: 14px; border: none; font-size: 20px; font-weight: 700; cursor: pointer; font-family: var(--font-display); letter-spacing: 4px; color: var(--gold-light); background: linear-gradient(135deg, var(--crimson), var(--crimson-light)); border: 1px solid var(--gold); box-shadow: 0 8px 25px rgba(139,0,0,0.4); position: relative; overflow: hidden; }
+.btn-battle::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation: shine 3s infinite; }
+@keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
+.btn-battle:active { transform: scale(0.96); }
+.main-nav { width: 100%; padding: 8px 16px 16px; display: flex; justify-content: space-around; position: relative; z-index: 2; flex-shrink: 0; background: linear-gradient(0deg, rgba(0,0,0,0.6), transparent); }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+.nav-item .nav-ico { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(212,164,55,0.15); border: 1px solid rgba(212,164,55,0.3); }
+.nav-item:active .nav-ico { transform: scale(0.9); }
+.nav-item .nav-txt { font-size: 10px; color: rgba(255,255,255,0.6); }
 
-/* ===== Level Select ===== */
-#level-screen {
-  background: linear-gradient(180deg, #E8F5E9, #C8E6C9, #A5D6A7);
-  padding: 0;
-}
-.level-header {
-  width: 100%; padding: 16px 20px; display: flex; align-items: center; gap: 12px;
-  background: rgba(255,255,255,0.5); backdrop-filter: blur(10px);
-  flex-shrink: 0;
-}
-.level-back {
-  width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.8);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
-  font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.level-worlds {
-  width: 100%; padding: 16px 20px; display: flex; gap: 12px; flex-shrink: 0;
-}
-.world-tab {
-  flex: 1; padding: 14px 10px; border-radius: 16px; text-align: center;
-  cursor: pointer; transition: all 0.3s ease; font-family: var(--font-display);
-  font-size: 14px; font-weight: 600; border: 2px solid transparent;
-  background: rgba(255,255,255,0.5);
-}
-.world-tab.active { background: white; border-color: var(--grass-dark); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-.world-tab.locked { opacity: 0.5; cursor: not-allowed; }
-.world-tab .world-emoji { font-size: 28px; display: block; margin-bottom: 4px; }
-.level-grid {
-  flex: 1; width: 100%; padding: 0 20px 20px; overflow-y: auto;
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
-  align-content: start;
-}
-.level-node {
-  aspect-ratio: 1; border-radius: 16px; display: flex;
-  flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.3s ease; position: relative;
-  font-family: var(--font-number); font-size: 18px; font-weight: 700;
-  background: rgba(255,255,255,0.6); border: 2px solid rgba(0,0,0,0.06);
-}
-.level-node.completed { background: linear-gradient(135deg, #C8E6C9, #A5D6A7); border-color: var(--green); }
-.level-node.current { background: white; border-color: var(--gold); box-shadow: 0 0 20px rgba(255,215,0,0.4); animation: nodePulse 2s ease-in-out infinite; }
-@keyframes nodePulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.4); }
-  50% { box-shadow: 0 0 35px rgba(255,215,0,0.7); }
-}
-.level-node.locked { background: rgba(0,0,0,0.05); cursor: not-allowed; }
-.level-node .level-star {
-  position: absolute; top: 4px; right: 4px; font-size: 10px; color: var(--gold);
-}
-.level-node .level-num { font-size: 16px; color: var(--text); }
-.level-node.locked .level-num { color: #ccc; }
-.level-daily {
-  width: calc(100% - 40px); margin: 0 20px 20px; padding: 16px;
-  border-radius: 16px; cursor: pointer;
-  background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
-  border: 2px dashed #FFB74D; display: flex; align-items: center; gap: 12px;
-  flex-shrink: 0;
-}
-.level-daily .daily-icon { font-size: 36px; }
-.level-daily .daily-info { flex: 1; }
-.level-daily .daily-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); }
-.level-daily .daily-sub { font-size: 12px; color: var(--text-light); }
-.level-daily .daily-reward { font-size: 14px; font-weight: 700; color: var(--gold-dark); }
+/* ===== COMMANDER GROWTH ===== */
+#commander-screen { background: linear-gradient(180deg, #1A1A2E, #2D1B00); padding: 0; }
+.cm-header { width: 100%; padding: 14px 18px; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.4); flex-shrink: 0; }
+.cm-back { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--gold-light); }
+.cm-title { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
+.cm-body { flex: 1; width: 100%; padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+.cm-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(212,164,55,0.2); border-radius: 14px; padding: 16px; }
+.cm-portrait-row { display: flex; gap: 14px; align-items: center; }
+.cm-portrait-sm { width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 2px solid var(--gold); flex-shrink: 0; }
+.cm-portrait-sm img { width: 100%; height: 100%; object-fit: cover; }
+.cm-info { flex: 1; }
+.cm-info .cm-rank { font-family: var(--font-display); font-size: 18px; color: var(--gold); }
+.cm-info .cm-exp-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.cm-info .cm-exp-fill { height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); border-radius: 4px; }
+.cm-info .cm-exp-txt { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.cm-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.cm-stat-box { padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; }
+.cm-stat-box .val { font-size: 18px; font-weight: 700; color: var(--gold-light); font-family: var(--font-number); }
+.cm-stat-box .lbl { font-size: 11px; color: rgba(255,255,255,0.5); }
+.cm-section-title { font-family: var(--font-display); font-size: 16px; color: var(--gold); margin-bottom: 8px; letter-spacing: 1px; }
+.cm-skills { display: flex; flex-direction: column; gap: 8px; }
+.cm-skill { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
+.cm-skill .sk-ico { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--crimson); }
+.cm-skill.locked .sk-ico { opacity: 0.3; }
+.cm-skill .sk-info { flex: 1; }
+.cm-skill .sk-name { font-size: 14px; font-weight: 700; color: var(--gold-light); }
+.cm-skill .sk-desc { font-size: 12px; color: rgba(255,255,255,0.5); }
+.cm-rank-track { display: flex; flex-direction: column; gap: 6px; }
+.rank-step { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+.rank-step.current { background: rgba(212,164,55,0.15); border: 1px solid var(--gold); }
+.rank-step.passed { opacity: 0.5; }
+.rank-step .rs-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: var(--crimson); color: var(--gold-light); flex-shrink: 0; }
+.rank-step.passed .rs-num { background: var(--jade); }
+.rank-step .rs-name { font-size: 13px; color: var(--gold-light); }
+.rank-step .rs-unlock { font-size: 11px; color: rgba(255,255,255,0.4); }
 
-/* ===== Game Screen ===== */
-#game-screen {
-  background: #1a1a2e; padding: 0; overflow: hidden;
-}
-.game-canvas-container {
-  position: relative; width: 100%; flex: 1; overflow: hidden;
-}
-#gameCanvas { width: 100%; height: 100%; display: block; }
-.game-hud {
-  position: absolute; top: 0; left: 0; width: 100%; pointer-events: none;
-  padding: 16px; display: flex; flex-direction: column; gap: 8px;
-}
-.game-hud-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-}
-.game-pause-btn {
-  width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.4);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
-  pointer-events: auto; font-size: 18px; color: white;
-  backdrop-filter: blur(4px);
-}
-.game-stats {
-  display: flex; gap: 10px;
-}
-.game-stat {
-  padding: 6px 14px; border-radius: 20px; background: rgba(0,0,0,0.4);
-  display: flex; align-items: center; gap: 6px; font-size: 14px;
-  font-weight: 700; color: white; backdrop-filter: blur(4px);
-  font-family: var(--font-number);
-}
-.game-stat .stat-icon { font-size: 18px; }
-.game-progress {
-  width: 100%; height: 6px; background: rgba(255,255,255,0.2);
-  border-radius: 3px; overflow: hidden;
-}
-.game-progress-bar {
-  height: 100%; background: linear-gradient(90deg, #FFD700, #FFA500);
-  border-radius: 3px; transition: width 0.3s ease;
-}
-.game-hp {
-  display: flex; gap: 4px; margin-top: 4px;
-}
-.game-hp-dot {
-  width: 16px; height: 16px; border-radius: 50%; background: #FF5252;
-  transition: all 0.3s ease;
-}
-.game-hp-dot.lost { background: rgba(255,255,255,0.2); }
+/* ===== CODEX (兵种/武器图鉴) ===== */
+#codex-screen { background: linear-gradient(180deg, #1A1A2E, #0D1B2A); padding: 0; }
+.cd-header { width: 100%; padding: 14px 18px; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.4); flex-shrink: 0; }
+.cd-tabs { display: flex; gap: 8px; padding: 0 18px 12px; flex-shrink: 0; }
+.cd-tab { flex: 1; padding: 10px; text-align: center; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid transparent; }
+.cd-tab.active { background: rgba(212,164,55,0.15); color: var(--gold); border-color: var(--gold); }
+.cd-list { flex: 1; width: 100%; padding: 0 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.cd-card { display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,164,55,0.15); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.cd-card:active { transform: scale(0.98); }
+.cd-card.locked { opacity: 0.4; }
+.cd-img { width: 70px; height: 70px; border-radius: 10px; overflow: hidden; border: 2px solid var(--gold); flex-shrink: 0; background: #1a1a2e; }
+.cd-img img { width: 100%; height: 100%; object-fit: cover; }
+.cd-info { flex: 1; }
+.cd-name { font-family: var(--font-display); font-size: 16px; color: var(--gold); }
+.cd-type { font-size: 11px; color: var(--crimson-light); margin-top: 2px; }
+.cd-stats { display: flex; gap: 10px; margin-top: 6px; }
+.cd-stat { font-size: 11px; color: rgba(255,255,255,0.6); }
+.cd-stat .v { color: var(--gold-light); font-weight: 700; }
+.cd-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; line-height: 1.4; }
 
-/* ===== Pause Overlay ===== */
-.game-pause-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6); display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 16px;
-  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-  z-index: 10;
-}
-.game-pause-overlay.show { opacity: 1; pointer-events: auto; }
-.pause-btn {
-  width: 240px; padding: 14px; border-radius: 14px; border: none;
-  font-size: 16px; font-weight: 700; cursor: pointer; color: white;
-  font-family: var(--font-display); letter-spacing: 1px;
-}
-.pause-btn.resume { background: linear-gradient(135deg, #4CAF50, #66BB6A); }
-.pause-btn.retry { background: linear-gradient(135deg, #FFA726, #FF9800); }
-.pause-btn.quit { background: linear-gradient(135deg, #EF5350, #F44336); }
+/* ===== LEVEL SELECT ===== */
+#level-screen { background: var(--ink); padding: 0; }
+.lvl-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; }
+.lvl-header { width: 100%; padding: 14px 18px; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.5); position: relative; z-index: 2; flex-shrink: 0; }
+.lvl-chapters { width: 100%; padding: 12px 14px; display: flex; gap: 8px; position: relative; z-index: 2; flex-shrink: 0; overflow-x: auto; }
+.lvl-chapter { flex-shrink: 0; padding: 10px 16px; border-radius: 10px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid transparent; }
+.lvl-chapter.active { background: rgba(139,0,0,0.3); border-color: var(--gold); }
+.lvl-chapter.locked { opacity: 0.4; }
+.lvl-chapter .ch-emoji { font-size: 24px; }
+.lvl-chapter .ch-name { font-size: 11px; color: var(--gold-light); margin-top: 2px; }
+.lvl-grid { flex: 1; width: 100%; padding: 0 14px 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; position: relative; z-index: 2; overflow-y: auto; align-content: start; }
+.lvl-node { padding: 14px; border-radius: 12px; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(212,164,55,0.2); display: flex; flex-direction: column; gap: 4px; }
+.lvl-node.completed { background: rgba(46,125,91,0.15); border-color: var(--jade); }
+.lvl-node.current { background: rgba(139,0,0,0.2); border-color: var(--gold); box-shadow: 0 0 15px rgba(212,164,55,0.3); }
+.lvl-node.locked { opacity: 0.4; }
+.lvl-node .ln-num { font-family: var(--font-number); font-size: 20px; font-weight: 700; color: var(--gold); }
+.lvl-node .ln-name { font-size: 12px; color: var(--gold-light); }
+.lvl-node .ln-stars { font-size: 12px; color: var(--gold); }
+.lvl-node .ln-reward { font-size: 11px; color: rgba(255,255,255,0.5); }
 
-/* ===== Result Screen ===== */
-#result-screen {
-  background: rgba(0,0,0,0.7); justify-content: center; z-index: 20;
-}
-.result-card {
-  width: 85%; max-width: 340px; background: white; border-radius: 24px;
-  padding: 28px 24px; display: flex; flex-direction: column; align-items: center;
-  gap: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  animation: cardPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-@keyframes cardPopIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.result-emoji { font-size: 64px; }
-.result-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text); }
+/* ===== BATTLE ===== */
+#battle-screen { background: #0D0D1A; padding: 0; overflow: hidden; }
+.battle-field { flex: 1; width: 100%; position: relative; overflow: hidden; }
+.battle-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.battle-path { position: absolute; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); background: linear-gradient(90deg, rgba(139,69,19,0.4), rgba(160,82,45,0.4)); border-top: 2px solid rgba(212,164,55,0.3); border-bottom: 2px solid rgba(212,164,55,0.3); }
+.battle-hud { position: absolute; top: 0; left: 0; width: 100%; padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 5; }
+.battle-hud-left { display: flex; gap: 8px; align-items: center; }
+.battle-pause { width: 36px; height: 36px; border-radius: 8px; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; color: white; }
+.battle-base-hp { padding: 6px 12px; border-radius: 8px; background: rgba(0,0,0,0.5); }
+.battle-base-hp .lbl { font-size: 10px; color: rgba(255,255,255,0.5); }
+.battle-base-hp .bar { width: 100px; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; margin-top: 3px; overflow: hidden; }
+.battle-base-hp .fill { height: 100%; background: linear-gradient(90deg, #FF5252, #FF8A80); border-radius: 3px; transition: width 0.3s; }
+.battle-hud-right { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.battle-stat { padding: 4px 10px; border-radius: 8px; background: rgba(0,0,0,0.5); font-size: 12px; color: var(--gold-light); font-family: var(--font-number); }
+.battle-wave-info { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); padding: 6px 16px; border-radius: 16px; background: rgba(139,0,0,0.6); border: 1px solid var(--gold); font-size: 13px; color: var(--gold-light); font-family: var(--font-display); z-index: 5; }
+.battle-units { position: absolute; top: 50%; left: 0; width: 100%; height: 100%; transform: translateY(-50%); }
+.unit-sprite { position: absolute; width: 50px; height: 50px; border-radius: 8px; overflow: hidden; transition: left 0.1s linear; }
+.unit-sprite img { width: 100%; height: 100%; object-fit: cover; }
+.unit-hp-bar { position: absolute; top: -6px; left: 5px; width: 40px; height: 4px; background: rgba(0,0,0,0.5); border-radius: 2px; }
+.unit-hp-fill { height: 100%; background: #4CAF50; border-radius: 2px; }
+.unit-sprite.enemy img { filter: hue-rotate(180deg) brightness(0.8); }
+.battle-deploy-bar { width: 100%; padding: 10px 12px; background: linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.5)); display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; z-index: 5; }
+.deploy-slot { flex-shrink: 0; width: 64px; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+.deploy-slot .ds-img { width: 50px; height: 50px; border-radius: 10px; overflow: hidden; border: 2px solid var(--gold); position: relative; }
+.deploy-slot .ds-img img { width: 100%; height: 100%; object-fit: cover; }
+.deploy-slot.locked .ds-img { opacity: 0.4; border-color: #555; }
+.deploy-slot .ds-cost { font-size: 10px; color: var(--gold-light); font-family: var(--font-number); }
+.deploy-slot .ds-name { font-size: 9px; color: rgba(255,255,255,0.6); }
+.deploy-slot.selected .ds-img { border-color: #6BFF9E; box-shadow: 0 0 12px rgba(107,255,158,0.5); }
+.battle-skill-bar { width: 100%; padding: 6px 12px 10px; display: flex; gap: 8px; justify-content: center; flex-shrink: 0; z-index: 5; }
+.skill-btn { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; background: rgba(139,0,0,0.6); border: 2px solid var(--gold); position: relative; }
+.skill-btn.locked { opacity: 0.3; }
+.skill-btn .skill-cd { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); font-size: 9px; color: white; background: rgba(0,0,0,0.7); padding: 1px 6px; border-radius: 8px; }
+.battle-grain-display { position: absolute; bottom: 130px; right: 14px; padding: 6px 14px; border-radius: 20px; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); font-size: 14px; color: var(--gold-light); font-family: var(--font-number); z-index: 5; }
+.battle-pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.battle-pause-overlay.show { opacity: 1; pointer-events: auto; }
+.pause-btn { width: 220px; padding: 13px; border-radius: 12px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; color: white; font-family: var(--font-display); letter-spacing: 2px; }
+.pause-btn.resume { background: linear-gradient(135deg, var(--jade), #4CAF50); }
+.pause-btn.retry { background: linear-gradient(135deg, var(--gold-deep), var(--gold)); color: var(--ink); }
+.pause-btn.quit { background: linear-gradient(135deg, var(--crimson), var(--crimson-light)); }
+.battle-projectile { position: absolute; width: 12px; height: 12px; border-radius: 50%; z-index: 4; }
+
+/* ===== RESULT ===== */
+#result-screen { background: rgba(0,0,0,0.8); justify-content: center; z-index: 30; }
+.result-card { width: 86%; max-width: 340px; background: linear-gradient(180deg, #1A1A2E, #2D2D44); border: 1px solid var(--gold); border-radius: 18px; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: popIn 0.4s ease; }
+@keyframes popIn { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.result-title { font-family: var(--font-display); font-size: 26px; color: var(--gold); letter-spacing: 3px; }
 .result-stars { display: flex; gap: 8px; }
-.result-star {
-  width: 44px; height: 44px; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; font-size: 28px;
-  background: #f0f0f0; transition: all 0.5s ease;
-}
-.result-star.earned { background: linear-gradient(135deg, #FFD700, #FFA500); box-shadow: 0 0 20px rgba(255,215,0,0.5); animation: starEarn 0.5s ease; }
-@keyframes starEarn {
-  0% { transform: scale(0) rotate(-180deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-.result-detail {
-  width: 100%; background: #F5F5F5; border-radius: 16px; padding: 16px;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.result-row {
-  display: flex; justify-content: space-between; font-size: 14px;
-  color: var(--text);
-}
-.result-row .val { font-weight: 700; font-family: var(--font-number); }
-.result-row .val.gold { color: var(--gold-dark); }
-.result-total {
-  font-family: var(--font-display); font-size: 22px; font-weight: 700;
-  color: var(--gold-dark); display: flex; align-items: center; gap: 8px;
-}
-.result-btns {
-  width: 100%; display: flex; flex-direction: column; gap: 8px;
-}
-.result-btn {
-  width: 100%; padding: 14px; border-radius: 14px; border: none;
-  font-size: 16px; font-weight: 700; cursor: pointer; color: white;
-  font-family: var(--font-display); letter-spacing: 1px;
-}
-.result-btn.next { background: linear-gradient(135deg, #4CAF50, #66BB6A); }
-.result-btn.replay { background: linear-gradient(135deg, #FFA726, #FF9800); }
-.result-btn.back { background: linear-gradient(135deg, #9E9E9E, #BDBDBD); }
-.result-btn.ad { background: linear-gradient(135deg, #FF6B35, #FF8C42); }
-.result-btn:active { transform: scale(0.96); }
+.result-star { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; background: rgba(255,255,255,0.05); }
+.result-star.earned { background: rgba(212,164,55,0.2); animation: starPop 0.5s ease; }
+@keyframes starPop { 0% { transform: scale(0) rotate(-180deg); } 100% { transform: scale(1) rotate(0); } }
+.result-detail { width: 100%; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.result-row { display: flex; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.7); }
+.result-row .val { font-weight: 700; color: var(--gold-light); font-family: var(--font-number); }
+.result-total { font-family: var(--font-display); font-size: 20px; color: var(--gold); display: flex; align-items: center; gap: 6px; }
+.result-btns { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.result-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; color: white; font-family: var(--font-display); letter-spacing: 2px; }
+.result-btn.next { background: linear-gradient(135deg, var(--jade), #4CAF50); }
+.result-btn.replay { background: linear-gradient(135deg, var(--gold-deep), var(--gold)); color: var(--ink); }
+.result-btn.back { background: rgba(255,255,255,0.1); }
 
-/* ===== Exchange Screen ===== */
-#exchange-screen {
-  background: linear-gradient(180deg, #FFF8E1, #FFECB3, #FFE082);
-  padding: 20px;
-}
-.exchange-header {
-  width: 100%; display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-}
-.exchange-back {
-  width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.8);
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
-  font-size: 20px;
-}
-.exchange-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text); }
-.exchange-card {
-  width: 100%; background: white; border-radius: 20px; padding: 20px;
-  display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow-lg);
-}
-.exchange-balance {
-  display: flex; justify-content: space-between; padding: 12px 16px;
-  background: #FFF8DC; border-radius: 14px;
-}
-.exchange-rate {
-  padding: 10px 16px; background: #E8F5E9; border-radius: 14px;
-  font-size: 13px; color: var(--green-dark); text-align: center;
-}
-.exchange-input-group {
-  display: flex; flex-direction: column; gap: 8px;
-}
-.exchange-input-row {
-  display: flex; align-items: center; gap: 12px;
-}
-.exchange-input {
-  flex: 1; padding: 14px 16px; border-radius: 14px; border: 2px solid #E0E0E0;
-  font-size: 18px; font-weight: 700; font-family: var(--font-number);
-  text-align: center; outline: none;
-}
-.exchange-input:focus { border-color: var(--gold); }
-.exchange-max {
-  padding: 12px 18px; border-radius: 14px; border: none;
-  background: var(--gold); color: white; font-weight: 700; cursor: pointer;
-  font-family: var(--font-display); font-size: 14px;
-}
-.exchange-quick {
-  display: flex; gap: 8px;
-}
-.quick-btn {
-  flex: 1; padding: 10px; border-radius: 10px; border: 2px solid #E0E0E0;
-  background: white; cursor: pointer; font-size: 13px; font-weight: 600;
-  font-family: var(--font-body); transition: all 0.2s ease;
-}
-.quick-btn:active { background: var(--gold); color: white; border-color: var(--gold); }
-.exchange-result {
-  padding: 12px 16px; background: #E8F5E9; border-radius: 14px;
-  text-align: center; font-size: 16px; font-weight: 700; color: var(--green-dark);
-  font-family: var(--font-number);
-}
-.exchange-submit {
-  width: 100%; padding: 16px; border-radius: 14px; border: none;
-  font-size: 18px; font-weight: 700; cursor: pointer; color: white;
-  font-family: var(--font-display); letter-spacing: 1px;
-  background: linear-gradient(135deg, #4CAF50, #66BB6A);
-  box-shadow: 0 6px 20px rgba(76,175,80,0.35);
-}
+/* ===== EXCHANGE ===== */
+#exchange-screen { background: linear-gradient(180deg, #1A1A2E, #1B2D1A); padding: 16px; }
+.ex-header { width: 100%; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-shrink: 0; }
+.ex-back { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: var(--gold-light); }
+.ex-title { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
+.ex-card { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(212,164,55,0.2); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.ex-balance { display: flex; justify-content: space-between; }
+.ex-bal-item { text-align: center; flex: 1; }
+.ex-bal-item .lbl { font-size: 12px; color: rgba(255,255,255,0.5); }
+.ex-bal-item .val { font-size: 22px; font-weight: 700; font-family: var(--font-number); margin-top: 4px; }
+.ex-bal-item .val.gold { color: var(--gold); }
+.ex-bal-item .val.cash { color: #6BFF9E; }
+.ex-rate { padding: 10px; background: rgba(46,125,91,0.15); border-radius: 10px; font-size: 12px; color: #6BFF9E; text-align: center; }
+.ex-input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(212,164,55,0.3); font-size: 18px; font-weight: 700; font-family: var(--font-number); text-align: center; background: rgba(0,0,0,0.3); color: var(--gold-light); outline: none; }
+.ex-quick { display: flex; gap: 6px; }
+.ex-quick-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid rgba(212,164,55,0.3); background: rgba(0,0,0,0.2); color: var(--gold-light); font-size: 12px; cursor: pointer; }
+.ex-result { padding: 12px; background: rgba(46,125,91,0.15); border-radius: 10px; text-align: center; font-size: 16px; font-weight: 700; color: #6BFF9E; font-family: var(--font-number); }
+.ex-submit { width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 17px; font-weight: 700; cursor: pointer; font-family: var(--font-display); letter-spacing: 2px; color: var(--ink); background: linear-gradient(135deg, var(--gold-deep), var(--gold)); }
 
-/* ===== Modal ===== */
-.modal-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); display: flex; align-items: center;
-  justify-content: center; z-index: 30; opacity: 0; pointer-events: none;
-  transition: opacity 0.3s ease;
-}
+/* ===== MODAL ===== */
+.modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
-.modal-card {
-  width: 85%; max-width: 340px; background: white; border-radius: 24px;
-  padding: 24px 20px; display: flex; flex-direction: column; gap: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  animation: cardPopIn 0.4s ease;
-  max-height: 80vh; overflow-y: auto;
-}
-.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; text-align: center; color: var(--text); }
-.modal-close {
-  align-self: flex-end; width: 36px; height: 36px; border-radius: 50%;
-  background: #f0f0f0; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 18px;
-}
+.modal-card { width: 86%; max-width: 340px; background: linear-gradient(180deg, #1A1A2E, #2D2D44); border: 1px solid var(--gold); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 10px; max-height: 75vh; overflow-y: auto; animation: popIn 0.3s ease; }
+.modal-title { font-family: var(--font-display); font-size: 18px; color: var(--gold); text-align: center; letter-spacing: 2px; }
+.modal-close { align-self: flex-end; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--gold-light); }
+.task-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 10px; }
+.task-item .ti-info { flex: 1; }
+.task-item .ti-name { font-size: 13px; font-weight: 700; color: var(--gold-light); }
+.task-item .ti-desc { font-size: 11px; color: rgba(255,255,255,0.4); }
+.task-item .ti-reward { font-size: 13px; color: var(--gold); font-weight: 700; }
+.task-claim { padding: 5px 12px; border-radius: 8px; border: none; background: var(--gold); color: var(--ink); font-weight: 700; font-size: 12px; cursor: pointer; }
+.sign-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.sign-day { text-align: center; padding: 10px 4px; border-radius: 8px; background: rgba(255,255,255,0.04); }
+.sign-day.claimed { background: rgba(46,125,91,0.15); }
+.sign-day.today { background: rgba(212,164,55,0.15); border: 1px solid var(--gold); }
+.sign-day .sd-num { font-size: 12px; color: var(--gold); font-weight: 700; }
+.sign-day .sd-reward { font-size: 10px; color: var(--gold-light); margin-top: 2px; }
 
-/* ===== Toast ===== */
-.toast {
-  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-  padding: 12px 24px; border-radius: 20px; background: rgba(0,0,0,0.8);
-  color: white; font-size: 14px; font-weight: 600; z-index: 50;
-  opacity: 0; transition: all 0.4s ease;
-  font-family: var(--font-display); white-space: nowrap;
-}
-.toast.show { opacity: 1; bottom: 100px; }
+/* ===== TOAST ===== */
+.toast { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); padding: 10px 22px; border-radius: 20px; background: rgba(0,0,0,0.85); border: 1px solid var(--gold); color: var(--gold-light); font-size: 13px; z-index: 60; opacity: 0; transition: all 0.3s; white-space: nowrap; }
+.toast.show { opacity: 1; bottom: 120px; }
 
-/* ===== Scrollbar ===== */
-.screen::-webkit-scrollbar { width: 0; }
-.level-grid::-webkit-scrollbar { width: 0; }
+/* ===== COIN RAIN ===== */
+.coin-rain { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 35; overflow: hidden; }
+.coin-p { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFE066, #D4A437); animation: coinFall 2.5s ease-in forwards; box-shadow: 0 0 8px rgba(212,164,55,0.5); }
+@keyframes coinFall { 0% { transform: translateY(-50px) rotate(0); opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
 
-/* ===== Coin Rain ===== */
-.coin-rain {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 25; overflow: hidden;
-}
-.coin-particle {
-  position: absolute; width: 30px; height: 30px; border-radius: 50%;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  animation: coinFall 2s ease-in forwards;
-  font-size: 20px; display: flex; align-items: center; justify-content: center;
-}
-@keyframes coinFall {
-  0% { transform: translateY(-100px) rotate(0deg) scale(1); opacity: 1; }
-  70% { opacity: 1; }
-  100% { transform: translateY(110vh) rotate(720deg) scale(0); opacity: 0; }
-}
+.screen::-webkit-scrollbar, .cd-list::-webkit-scrollbar, .lvl-grid::-webkit-scrollbar, .lvl-chapters::-webkit-scrollbar, .battle-deploy-bar::-webkit-scrollbar { width: 0; height: 0; }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="phone-frame" id="app">
 
-  <!-- ===== SPLASH ===== -->
+  <!-- SPLASH -->
   <div class="screen active" id="splash-screen">
-    <div class="splash-stars" id="splashStars"></div>
-    <div class="splash-logo">&#x1F4B0;</div>
-    <div class="splash-title">金币大冒险</div>
-    <div class="splash-subtitle">闯关赚金币 · 兑换现金</div>
-    <div class="splash-progress"><div class="splash-progress-bar" id="splashBar"></div></div>
-    <div class="splash-version">v1.0.0 · 健康游戏忠告</div>
-    <div class="splash-clouds"></div>
+    <img class="splash-bg" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=epic%20ancient%20chinese%20battlefield%20at%20dusk%2C%20army%20banners%2C%20dramatic%20red%20sky%2C%20silhouettes%20of%20soldiers%2C%20cinematic%20game%20art&image_size=portrait_16_9" alt="">
+    <div class="splash-overlay"></div>
+    <div class="splash-content">
+      <div class="splash-logo"><img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ornate%20golden%20ancient%20chinese%20war%20medal%2C%20intricate%20metalwork%2C%20dark%20background%2C%20game%20logo%20icon&image_size=square" alt=""></div>
+      <div class="splash-title">烽火主帅</div>
+      <div class="splash-sub">塔防闯关 · 金币兑现金</div>
+      <div class="splash-bar-wrap"><div class="splash-bar" id="splashBar"></div></div>
+      <div class="splash-version">v1.0.0 · 健康游戏忠告</div>
+    </div>
   </div>
 
-  <!-- ===== AUTH ===== -->
+  <!-- AUTH -->
   <div class="screen" id="auth-screen">
+    <img class="auth-bg" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20fortress%20wall%20at%20night%2C%20torches%2C%20dark%20atmosphere%2C%20cinematic&image_size=portrait_16_9" alt="">
     <div class="auth-container">
       <div class="auth-header">
-        <div class="auth-icon">&#x1F3AE;</div>
-        <h2>欢迎回来</h2>
-        <p>登录后开始闯关赚金币</p>
+        <h2>烽火主帅</h2>
+        <p>登录后开始你的统帅之路</p>
       </div>
       <div class="auth-tabs">
         <div class="auth-tab active" data-tab="login">登录</div>
         <div class="auth-tab" data-tab="register">注册</div>
       </div>
       <div class="auth-form" id="loginForm">
-        <input class="auth-input" type="text" placeholder="手机号/用户名" id="loginUser" value="player1">
-        <input class="auth-input" type="password" placeholder="密码" id="loginPass" value="123456">
-        <button class="auth-btn" onclick="handleLogin()">登 录</button>
+        <input class="auth-input" type="text" placeholder="手机号/用户名" value="player1">
+        <input class="auth-input" type="password" placeholder="密码" value="123456">
+        <button class="auth-btn" onclick="handleAuth()">登 录</button>
       </div>
       <div class="auth-form" id="registerForm" style="display:none">
         <input class="auth-input" type="text" placeholder="设置用户名">
         <input class="auth-input" type="text" placeholder="手机号">
         <input class="auth-input" type="password" placeholder="设置密码">
         <input class="auth-input" type="password" placeholder="确认密码">
-        <button class="auth-btn secondary" onclick="handleRegister()">注 册</button>
+        <button class="auth-btn" onclick="handleAuth()">注 册</button>
       </div>
-      <div class="auth-divider">其他登录方式</div>
-      <button class="auth-btn secondary" onclick="handleGuestLogin()">游客体验</button>
+      <div class="auth-divider">其他方式</div>
+      <button class="auth-btn secondary" onclick="handleGuest()">游客体验</button>
     </div>
   </div>
 
-  <!-- ===== MAIN ===== -->
+  <!-- MAIN -->
   <div class="screen" id="main-screen">
+    <img class="main-bg" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20military%20camp%2C%20banners%20fluttering%2C%20mountains%20in%20distance%2C%20golden%20hour%20lighting%2C%20concept%20art&image_size=portrait_16_9" alt="">
     <div class="main-top">
       <div class="main-balance">
-        <div class="balance-item"><span class="balance-icon gold">&#x1FA99;</span><span id="mainGold">0</span></div>
-        <div class="balance-item"><span class="balance-icon cash">&#x1F4B5;</span><span id="mainCash">0.00</span></div>
+        <div class="balance-chip">&#x1FA99; <span id="mainGold">5,000</span></div>
+        <div class="balance-chip cash">&#x1F4B0; <span id="mainCash">0.00</span></div>
       </div>
-      <div class="main-settings" onclick="showToast('设置')">&#x2699;</div>
+      <div class="main-icon-btn" onclick="showToast('设置')">&#x2699;</div>
     </div>
-    <div class="main-hero">
-      <div class="hero-float">&#x1F9DD;</div>
-      <div class="hero-label" id="heroName">冒险家</div>
-      <div class="hero-coins">
-        <div class="hero-coin"></div><div class="hero-coin"></div><div class="hero-coin"></div>
+    <div class="main-hero-area">
+      <div class="commander-portrait">
+        <img id="mainCommanderImg" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=young%20chinese%20ancient%20frontier%20soldier%2C%20simple%20leather%20armor%2C%20holding%20sword%20and%20shield%2C%20determined%20expression%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square" alt="">
+        <div class="commander-rank-badge" id="mainRank">边防小兵</div>
       </div>
-      <div class="hero-ground"></div>
+      <div class="commander-name" id="mainCmdName">无名小卒</div>
+      <div class="commander-stats">
+        <div class="cmd-stat"><div class="stat-val" id="mainStatCmd">3</div><div class="stat-lbl">统帅</div></div>
+        <div class="cmd-stat"><div class="stat-val" id="mainStatMorale">+5%</div><div class="stat-lbl">士气</div></div>
+        <div class="cmd-stat"><div class="stat-val" id="mainStatExp">0</div><div class="stat-lbl">经验</div></div>
+      </div>
     </div>
     <div class="main-actions">
-      <button class="btn-play" onclick="navigateTo('level-screen')">&#x25B6; 开始闯关</button>
+      <button class="btn-battle" onclick="navigateTo('level-screen')">&#9876; 出 征</button>
     </div>
-    <div class="main-bottom-nav">
-      <div class="nav-item" onclick="openModal('task-modal')"><div class="nav-icon">&#x1F4CB;</div><div class="nav-label">每日任务</div></div>
-      <div class="nav-item" onclick="openModal('sign-modal')"><div class="nav-icon">&#x1F4C5;</div><div class="nav-label">签到</div></div>
-      <div class="nav-item" onclick="navigateTo('exchange-screen')"><div class="nav-icon">&#x1F4B1;</div><div class="nav-label">兑换</div></div>
-      <div class="nav-item" onclick="openModal('achievement-modal')"><div class="nav-icon">&#x1F3C6;</div><div class="nav-label">成就</div></div>
-    </div>
-  </div>
-
-  <!-- ===== LEVEL SELECT ===== -->
-  <div class="screen" id="level-screen">
-    <div class="level-header">
-      <div class="level-back" onclick="navigateTo('main-screen')">&#x2190;</div>
-      <div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);">选择关卡</div>
-    </div>
-    <div class="level-worlds">
-      <div class="world-tab active" data-world="0" onclick="selectWorld(0)"><span class="world-emoji">&#x1F33F;</span>绿茵草原</div>
-      <div class="world-tab" data-world="1" onclick="selectWorld(1)"><span class="world-emoji">&#x1F3DC;</span>沙漠遗迹</div>
-      <div class="world-tab locked" data-world="2" onclick="selectWorld(2)"><span class="world-emoji">&#x2744;</span>冰雪山脉</div>
-    </div>
-    <div class="level-grid" id="levelGrid"></div>
-    <div class="level-daily" onclick="startGame(-1)">
-      <div class="daily-icon">&#x2600;</div>
-      <div class="daily-info">
-        <div class="daily-title">每日挑战</div>
-        <div class="daily-sub">限时关卡 · 额外金币奖励</div>
-      </div>
-      <div class="daily-reward">+300&#x1FA99;</div>
+    <div class="main-nav">
+      <div class="nav-item" onclick="navigateTo('commander-screen')"><div class="nav-ico">&#x1F3C6;</div><div class="nav-txt">主帅</div></div>
+      <div class="nav-item" onclick="navigateTo('codex-screen')"><div class="nav-ico">&#x1F4DC;</div><div class="nav-txt">图鉴</div></div>
+      <div class="nav-item" onclick="openModal('task-modal')"><div class="nav-ico">&#x1F4CB;</div><div class="nav-txt">任务</div></div>
+      <div class="nav-item" onclick="openModal('sign-modal')"><div class="nav-ico">&#x1F4C5;</div><div class="nav-txt">签到</div></div>
+      <div class="nav-item" onclick="navigateTo('exchange-screen')"><div class="nav-ico">&#x1F4B1;</div><div class="nav-txt">兑换</div></div>
     </div>
   </div>
 
-  <!-- ===== GAME ===== -->
-  <div class="screen" id="game-screen">
-    <div class="game-canvas-container">
-      <canvas id="gameCanvas"></canvas>
-      <div class="game-hud">
-        <div class="game-hud-top">
-          <div class="game-pause-btn" onclick="togglePause()">&#x275A;&#x275A;</div>
-          <div class="game-stats">
-            <div class="game-stat"><span class="stat-icon">&#x1FA99;</span><span id="gameCoin">0</span></div>
-            <div class="game-stat"><span class="stat-icon">&#x23F1;</span><span id="gameTime">0s</span></div>
+  <!-- COMMANDER GROWTH -->
+  <div class="screen" id="commander-screen">
+    <div class="cm-header">
+      <div class="cm-back" onclick="navigateTo('main-screen')">&#x2190;</div>
+      <div class="cm-title">主帅成长</div>
+    </div>
+    <div class="cm-body">
+      <div class="cm-card">
+        <div class="cm-portrait-row">
+          <div class="cm-portrait-sm"><img id="cmPortrait" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=young%20chinese%20ancient%20frontier%20soldier%2C%20simple%20leather%20armor%2C%20holding%20sword%20and%20shield%2C%20determined%20expression%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square" alt=""></div>
+          <div class="cm-info">
+            <div class="cm-rank" id="cmRank">边防小兵 · 阶段1</div>
+            <div class="cm-exp-bar"><div class="cm-exp-fill" id="cmExpFill" style="width:0%"></div></div>
+            <div class="cm-exp-txt" id="cmExpTxt">经验 0 / 500</div>
           </div>
         </div>
-        <div class="game-progress"><div class="game-progress-bar" id="gameProgress" style="width:0%"></div></div>
-        <div class="game-hp" id="gameHp"></div>
+        <div class="cm-stats-grid">
+          <div class="cm-stat-box"><div class="val" id="cmStatCmd">3</div><div class="lbl">统帅上限</div></div>
+          <div class="cm-stat-box"><div class="val" id="cmStatMorale">+5%</div><div class="lbl">士气加成</div></div>
+          <div class="cm-stat-box"><div class="val" id="cmStatGrain">200</div><div class="lbl">粮草上限</div></div>
+          <div class="cm-stat-box"><div class="val" id="cmStatClears">0</div><div class="lbl">通关次数</div></div>
+        </div>
       </div>
-      <div class="game-pause-overlay" id="pauseOverlay">
-        <div style="font-family:var(--font-display);font-size:28px;color:white;font-weight:700;">暂停</div>
-        <button class="pause-btn resume" onclick="togglePause()">继续游戏</button>
-        <button class="pause-btn retry" onclick="restartGame()">重新开始</button>
-        <button class="pause-btn quit" onclick="quitGame()">返回关卡列表</button>
+      <div class="cm-card">
+        <div class="cm-section-title">&#x1F4A5; 战术技能</div>
+        <div class="cm-skills" id="cmSkills"></div>
+      </div>
+      <div class="cm-card">
+        <div class="cm-section-title">&#x1F3C5; 成长路线</div>
+        <div class="cm-rank-track" id="cmRankTrack"></div>
       </div>
     </div>
   </div>
 
-  <!-- ===== RESULT ===== -->
+  <!-- CODEX -->
+  <div class="screen" id="codex-screen">
+    <div class="cd-header">
+      <div class="cm-back" onclick="navigateTo('main-screen')">&#x2190;</div>
+      <div class="cm-title">兵种武器图鉴</div>
+    </div>
+    <div class="cd-tabs">
+      <div class="cd-tab active" data-tab="units" onclick="switchCodex('units')">兵种</div>
+      <div class="cd-tab" data-tab="weapons" onclick="switchCodex('weapons')">武器</div>
+      <div class="cd-tab" data-tab="enemies" onclick="switchCodex('enemies')">敌人</div>
+    </div>
+    <div class="cd-list" id="codexList"></div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div class="screen" id="level-screen">
+    <img class="lvl-bg" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20strategic%20map%2C%20parchment%20texture%2C%20ink%20painting%20style%2C%20mountains%20and%20rivers%2C%20dark%20mood&image_size=portrait_16_9" alt="">
+    <div class="lvl-header">
+      <div class="cm-back" onclick="navigateTo('main-screen')">&#x2190;</div>
+      <div class="cm-title">选择关卡</div>
+    </div>
+    <div class="lvl-chapters" id="lvlChapters"></div>
+    <div class="lvl-grid" id="lvlGrid"></div>
+  </div>
+
+  <!-- BATTLE -->
+  <div class="screen" id="battle-screen">
+    <div class="battle-field" id="battleField">
+      <img class="battle-bg" id="battleBg" src="" alt="">
+      <div class="battle-path"></div>
+      <div class="battle-hud">
+        <div class="battle-hud-left">
+          <div class="battle-pause" onclick="togglePause()">&#x275A;&#x275A;</div>
+          <div class="battle-base-hp">
+            <div class="lbl">基地</div>
+            <div class="bar"><div class="fill" id="baseHpFill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="battle-hud-right">
+          <div class="battle-stat">&#x1FA99; <span id="battleGold">0</span></div>
+          <div class="battle-stat">&#x23F1; <span id="battleTime">0s</span></div>
+        </div>
+      </div>
+      <div class="battle-wave-info" id="waveInfo">第 1/3 波</div>
+      <div class="battle-units" id="battleUnits"></div>
+      <div class="battle-grain-display">&#x1F35E; 粮草: <span id="grainDisplay">200</span></div>
+      <div class="battle-skill-bar" id="skillBar"></div>
+      <div class="battle-deploy-bar" id="deployBar"></div>
+      <div class="battle-pause-overlay" id="pauseOverlay">
+        <div style="font-family:var(--font-display);font-size:26px;color:var(--gold);">暂停</div>
+        <button class="pause-btn resume" onclick="togglePause()">继续战斗</button>
+        <button class="pause-btn retry" onclick="restartBattle()">重新开始</button>
+        <button class="pause-btn quit" onclick="quitBattle()">返回关卡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
   <div class="screen" id="result-screen">
     <div class="result-card" id="resultCard"></div>
   </div>
 
-  <!-- ===== EXCHANGE ===== -->
+  <!-- EXCHANGE -->
   <div class="screen" id="exchange-screen">
-    <div class="exchange-header">
-      <div class="exchange-back" onclick="navigateTo('main-screen')">&#x2190;</div>
-      <div class="exchange-title">金币兑换现金</div>
+    <div class="ex-header">
+      <div class="ex-back" onclick="navigateTo('main-screen')">&#x2190;</div>
+      <div class="ex-title">金币兑换</div>
     </div>
-    <div class="exchange-card">
-      <div class="exchange-balance">
-        <div><span style="color:var(--text-light);font-size:13px;">金币余额</span><br><span style="font-family:var(--font-number);font-size:20px;font-weight:700;color:var(--gold-dark);" id="exGold">0</span></div>
-        <div><span style="color:var(--text-light);font-size:13px;">现金余额</span><br><span style="font-family:var(--font-number);font-size:20px;font-weight:700;color:var(--green-dark);" id="exCash">0.00</span></div>
+    <div class="ex-card">
+      <div class="ex-balance">
+        <div class="ex-bal-item"><div class="lbl">金币余额</div><div class="val gold" id="exGold">5,000</div></div>
+        <div class="ex-bal-item"><div class="lbl">现金余额</div><div class="val cash" id="exCash">0.00</div></div>
       </div>
-      <div class="exchange-rate">当前汇率：10000 金币 = 1.00 元 | 最低提现：10.00 元</div>
-      <div class="exchange-input-group">
-        <div class="exchange-input-row">
-          <input class="exchange-input" type="number" id="exInput" placeholder="输入金币数量" value="10000" oninput="updateExchange()">
-          <button class="exchange-max" onclick="maxExchange()">全部</button>
-        </div>
-        <div class="exchange-quick">
-          <button class="quick-btn" onclick="quickExchange(10000)">10000 &#x1FA99;</button>
-          <button class="quick-btn" onclick="quickExchange(50000)">50000 &#x1FA99;</button>
-          <button class="quick-btn" onclick="quickExchange(100000)">100000 &#x1FA99;</button>
-        </div>
+      <div class="ex-rate">汇率：10000 金币 = 1.00 元 | 最低提现 10.00 元</div>
+      <input class="ex-input" type="number" id="exInput" value="100000" placeholder="输入金币数量" oninput="updateExchange()">
+      <div class="ex-quick">
+        <button class="ex-quick-btn" onclick="quickEx(100000)">10万</button>
+        <button class="ex-quick-btn" onclick="quickEx(500000)">50万</button>
+        <button class="ex-quick-btn" onclick="quickEx(1000000)">100万</button>
+        <button class="ex-quick-btn" onclick="maxEx()">全部</button>
       </div>
-      <div class="exchange-result" id="exResult">预计可得：1.00 元</div>
-      <button class="exchange-submit" id="exSubmit" onclick="submitExchange()">确认兑换</button>
+      <div class="ex-result" id="exResult">预计可得：10.00 元</div>
+      <button class="ex-submit" onclick="submitExchange()">确认兑换</button>
     </div>
   </div>
 
-  <!-- ===== MODALS ===== -->
+  <!-- MODALS -->
   <div class="modal-overlay" id="task-modal">
     <div class="modal-card">
       <div class="modal-close" onclick="closeModal('task-modal')">&#x2715;</div>
@@ -768,749 +543,601 @@ html, body {
     <div class="modal-card">
       <div class="modal-close" onclick="closeModal('sign-modal')">&#x2715;</div>
       <div class="modal-title">每日签到</div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;" id="signGrid"></div>
-      <button class="auth-btn" id="signBtn" onclick="doSignIn()" style="margin-top:8px;">签到领金币</button>
-    </div>
-  </div>
-  <div class="modal-overlay" id="achievement-modal">
-    <div class="modal-card">
-      <div class="modal-close" onclick="closeModal('achievement-modal')">&#x2715;</div>
-      <div class="modal-title">成就</div>
-      <div id="achievementList"></div>
+      <div class="sign-grid" id="signGrid"></div>
+      <button class="auth-btn" id="signBtn" onclick="doSign()">签到领金币</button>
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
-  <!-- Coin Rain -->
   <div class="coin-rain" id="coinRain"></div>
-
 </div>
 
 <script>
-// ===== STATE =====
-const State = {
-  gold: 5000, cash: 0.00, levelProgress: [0, 0, 0], // highest completed level per world
-  signDay: 0, signDone: false,
-  tasks: [
-    { name: '闯关先锋', desc: '通关任意关卡3次', goal: 3, progress: 0, reward: 150, done: false },
-    { name: '金币收藏家', desc: '单局收集金币200枚', goal: 200, progress: 0, reward: 200, done: false },
-    { name: '三星挑战者', desc: '累计获得5颗星', goal: 5, progress: 0, reward: 250, done: false },
-    { name: '无伤达人', desc: '无伤通关2次', goal: 2, progress: 0, reward: 300, done: false },
-    { name: '广告支持者', desc: '观看广告3次', goal: 3, progress: 0, reward: 400, done: false },
-    { name: '挑战参与者', desc: '完成每日挑战', goal: 1, progress: 0, reward: 300, done: false },
-    { name: '分享达人', desc: '分享游戏1次', goal: 1, progress: 0, reward: 100, done: false },
+// ===== IMAGE ASSETS =====
+const IMG = {
+  commander: [
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=young%20chinese%20ancient%20frontier%20soldier%2C%20simple%20leather%20armor%2C%20holding%20sword%20and%20shield%2C%20determined%20expression%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20squad%20leader%20soldier%2C%20light%20armor%2C%20confident%20expression%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20centurion%20officer%2C%20scale%20armor%2C%20red%20cape%2C%20commanding%20presence%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20military%20officer%2C%20ornate%20armor%2C%20plumed%20helmet%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20general%2C%20golden%20armor%2C%20red%20cape%2C%20majestic%20helmet%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=mighty%20chinese%20ancient%20grand%20general%2C%20ornate%20golden%20battle%20armor%2C%20flowing%20red%20cape%2C%20imposing%20helmet%20with%20feathers%2C%20commanding%20presence%2C%20chibi%20cartoon%20game%20character%2C%20clean%20background&image_size=square',
   ],
-  achievements: [
-    { name: '初出茅庐', desc: '首次通关任意关卡', reward: 100, unlocked: false },
-    { name: '草原之星', desc: '在W1累计获得10颗星', reward: 300, unlocked: false },
-    { name: '世界征服者', desc: '解锁世界2', reward: 1000, unlocked: false },
-    { name: '冰雪勇者', desc: '解锁世界3', reward: 2500, unlocked: false },
-    { name: '完美通关', desc: '三星无伤通关', reward: 500, unlocked: false },
-    { name: '三星大师', desc: '累计获得30颗星', reward: 1500, unlocked: false },
-    { name: '金币猎人', desc: '累计收集10000金币', reward: 2000, unlocked: false },
-    { name: '分享达人', desc: '累计分享10次', reward: 800, unlocked: false },
-    { name: '传奇闯关者', desc: '累计通关100次', reward: 3000, unlocked: false },
+  units: [
+    { name: '刀盾兵', type: '近战·肉盾', weapon: '刀+盾', atk: 15, hp: 200, range: '近身', spd: '1.2s', cost: 30, rank: 1, desc: '前排吸收伤害，举盾减伤40%，保护远程兵种', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20infantry%20soldier%20with%20sword%20and%20round%20shield%2C%20leather%20armor%2C%20chibi%20cartoon%20game%20art%2C%20full%20body%2C%20clean%20background&image_size=square' },
+    { name: '长枪兵', type: '近战·输出', weapon: '长枪', atk: 25, hp: 120, range: '近身', spd: '1.0s', cost: 35, rank: 2, desc: '稳定近战输出，对骑兵伤害+50%', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20spearman%20with%20long%20polearm%20weapon%2C%20infantry%20armor%2C%20chibi%20cartoon%20game%20art%2C%20full%20body%2C%20clean%20background&image_size=square' },
+    { name: '弓箭手', type: '远程·单体', weapon: '弓箭', atk: 20, hp: 80, range: '远', spd: '0.8s', cost: 40, rank: 3, desc: '攻速快，可对空，核心远程输出', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20archer%20drawing%20bow%2C%20leather%20armor%2C%20quiver%20of%20arrows%2C%20chibi%20cartoon%20game%20art%2C%20full%20body%2C%20clean%20background&image_size=square' },
+    { name: '床弩手', type: '远程·穿甲', weapon: '床弩', atk: 60, hp: 150, range: '极远', spd: '2.5s', cost: 80, rank: 4, desc: '重型穿甲远程，对重甲敌人+100%伤害', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20ballista%20siege%20weapon%2C%20large%20crossbow%20mounted%20on%20wooden%20stand%2C%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '投石车', type: '远程·范围', weapon: '投石车', atk: 80, hp: 200, range: '远', spd: '3.0s', cost: 120, rank: 5, desc: '投掷巨石造成范围伤害，攻城利器', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20trebuchet%20catapult%20siege%20engine%2C%20wooden%20frame%20with%20counterweight%2C%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '重装骑兵', type: '近战·冲锋', weapon: '长枪+马', atk: 45, hp: 300, range: '近身', spd: '0.9s', cost: 100, rank: 6, desc: '高生命高攻击，冲锋突破敌方阵线', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20ancient%20heavy%20cavalry%20knight%20on%20armored%20horse%2C%20lance%20weapon%2C%20iron%20armor%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '精锐禁卫', type: '近战·精英', weapon: '双刀', atk: 70, hp: 400, range: '近身', spd: '0.7s', cost: 150, rank: 7, desc: '终极近战兵种，攻防一体，攻速极快', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elite%20chinese%20ancient%20royal%20guard%20dual%20wielding%20blades%2C%20ornate%20golden%20armor%2C%20fierce%20expression%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
   ],
-  totalStars: 0, totalClears: 0, totalCollected: 0,
-  currentWorld: 0, currentLevel: 0,
-  loggedIn: false,
+  weapons: [
+    { name: '短刀', type: '近战', unit: '刀盾兵', bonus: '+0', effect: '基础近战武器', rank: 1, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20short%20dao%20sword%20blade%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '圆盾', type: '近战', unit: '刀盾兵', bonus: '减伤40%', effect: '举盾防御', rank: 1, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20round%20wooden%20shield%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '长枪', type: '近战', unit: '长枪兵', bonus: '+0', effect: '克制骑兵+50%', rank: 2, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20long%20spear%20polearm%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '猎弓', type: '远程', unit: '弓箭手', bonus: '+0', effect: '基础远程武器', rank: 3, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20hunting%20bow%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '床弩', type: '远程', unit: '床弩手', bonus: '+0', effect: '穿甲，对重甲+100%', rank: 4, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20bed%20crossbow%20ballista%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '投石车', type: '远程', unit: '投石车', bonus: '+0', effect: '范围伤害', rank: 5, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20catapult%20trebuchet%20siege%20weapon%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '铁胎弓', type: '远程', unit: '弓箭手', bonus: '+8', effect: '攻速+15%', rank: 5, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20iron%20core%20compound%20bow%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '连弩', type: '远程', unit: '床弩手', bonus: '+12', effect: '射出3支弩箭', rank: 7, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20repeating%20crossbow%20chu-ko-nu%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+    { name: '双刀', type: '近战', unit: '精锐禁卫', bonus: '+15', effect: '攻速+10%', rank: 7, img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20chinese%20dual%20dao%20twin%20blades%2C%20game%20icon%2C%20clean%20background&image_size=square' },
+  ],
+  enemies: [
+    { name: '山贼步兵', type: '地面', atk: 10, hp: 100, spd: '中', desc: '基础敌人，数量多', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20bandit%20infantry%2C%20ragged%20clothes%2C%20crude%20weapon%2C%20angry%20expression%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '山贼弓手', type: '地面·远程', atk: 15, hp: 60, spd: '中', desc: '远程攻击我方士兵', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20bandit%20archer%2C%20ragged%20clothes%2C%20bow%20and%20arrow%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '流寇骑兵', type: '地面·快速', atk: 20, hp: 150, spd: '快', desc: '移速快，突破阵线', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20bandit%20cavalry%20rider%20on%20horse%2C%20crude%20armor%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '重甲步兵', type: '地面·重甲', atk: 25, hp: 300, spd: '慢', desc: '高护甲，需穿甲武器', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chinese%20heavy%20armored%20infantry%20soldier%2C%20thick%20iron%20armor%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '飞鹰斥候', type: '空中', atk: 10, hp: 80, spd: '快', desc: '飞行单位，仅弓箭手可攻击', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fantasy%20war%20eagle%20scout%2C%20flying%20creature%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '攻城车', type: '地面·攻城', atk: 40, hp: 800, spd: '极慢', desc: '对基地造成大量伤害', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20siege%20ram%20cart%2C%20wooden%20wheels%2C%20armored%20roof%2C%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '蛮族勇士', type: '地面·精英', atk: 40, hp: 500, spd: '中', desc: '高攻高血精英敌人', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=barbarian%20warrior%2C%20muscular%2C%20fur%20armor%2C%20giant%20axe%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+    { name: '蛮王', type: 'Boss', atk: 80, hp: 3000, spd: '慢', desc: '最终Boss，召唤小兵', img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=massive%20barbarian%20king%20boss%2C%20muscular%20warrior%2C%20fur%20armor%2C%20giant%20war%20axe%2C%20menacing%20glow%2C%20chibi%20cartoon%20game%20art%2C%20clean%20background&image_size=square' },
+  ],
+  battleBg: [
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tower%20defense%20battlefield%2C%20grassland%20border%20pass%2C%20stone%20fortress%20walls%2C%20path%20through%20green%20hills%2C%20top-down%20strategy%20game%20view%2C%20concept%20art&image_size=landscape_16_9',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tower%20defense%20battlefield%2C%20desert%20fortress%2C%20sandy%20dunes%2C%20ancient%20stone%20walls%2C%20top-down%20strategy%20game%20view%2C%20concept%20art&image_size=landscape_16_9',
+    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tower%20defense%20battlefield%2C%20snow%20mountain%20castle%2C%20icy%20terrain%2C%20stone%20walls%2C%20top-down%20strategy%20game%20view%2C%20concept%20art&image_size=landscape_16_9',
+  ],
 };
 
-// ===== NAVIGATION =====
-function navigateTo(screenId) {
+// ===== STATE =====
+const State = {
+  gold: 5000, cash: 0.00,
+  cmdRank: 1, cmdExp: 0, cmdTotalClears: 0,
+  levelProgress: [0, 0, 0, 0, 0],
+  currentChapter: 0, currentLevel: 0,
+  signDay: 0, signDone: false,
+  tasks: [
+    { name: '闯关先锋', desc: '通关3次', goal: 3, prog: 0, reward: 150, done: false },
+    { name: '全歼敌军', desc: '全灭敌人2次', goal: 2, prog: 0, reward: 200, done: false },
+    { name: '无损通关', desc: '无损通关1次', goal: 1, prog: 0, reward: 250, done: false },
+    { name: '兵种大师', desc: '部署10个士兵', goal: 10, prog: 0, reward: 200, done: false },
+    { name: '广告支持', desc: '观看广告3次', goal: 3, prog: 0, reward: 400, done: false },
+    { name: '挑战参与', desc: '完成每日挑战', goal: 1, prog: 0, reward: 300, done: false },
+    { name: '分享战友', desc: '分享1次', goal: 1, prog: 0, reward: 100, done: false },
+  ],
+};
+
+const RANKS = [
+  { name: '边防小兵', exp: 0, unlock: '刀盾兵', cmd: 3, morale: 5, grain: 200 },
+  { name: '什长', exp: 500, unlock: '长枪兵', cmd: 4, morale: 10, grain: 250 },
+  { name: '百夫长', exp: 2000, unlock: '弓箭手', cmd: 5, morale: 15, grain: 300 },
+  { name: '校尉', exp: 6000, unlock: '床弩', cmd: 6, morale: 20, grain: 350 },
+  { name: '都尉', exp: 15000, unlock: '投石车', cmd: 8, morale: 25, grain: 400 },
+  { name: '将军', exp: 40000, unlock: '重装骑兵', cmd: 10, morale: 30, grain: 500 },
+  { name: '大将军', exp: 100000, unlock: '精锐禁卫', cmd: 12, morale: 35, grain: 600 },
+  { name: '兵马大元帅', exp: 250000, unlock: '全兵种精通', cmd: 15, morale: 40, grain: 800 },
+];
+
+const SKILLS = [
+  { name: '战鼓擂', rank: 3, desc: '全军攻击+30%，持续10秒', icon: '&#x1F418;' },
+  { name: '急救令', rank: 4, desc: '恢复友军30%生命', icon: '&#x1F49A;' },
+  { name: '火矢齐射', rank: 5, desc: '全屏火焰伤害', icon: '&#x1F525;' },
+  { name: '天降神兵', rank: 7, desc: '空降3名精锐士兵', icon: '&#x2694;' },
+];
+
+const CHAPTERS = [
+  { name: '边境烽烟', emoji: '&#x1F33F;', enemy: '山贼流寇' },
+  { name: '荒漠戈壁', emoji: '&#x1F3DC;', enemy: '沙漠马贼' },
+  { name: '雪域雄关', emoji: '&#x2744;', enemy: '北方蛮族' },
+  { name: '江南水乡', emoji: '&#x1F30A;', enemy: '水匪海寇' },
+  { name: '帝都决战', emoji: '&#x1F3EF;', enemy: '叛军禁军' },
+];
+
+const LEVELS_PER_CHAPTER = 10;
+
+// ===== NAV =====
+function navigateTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(screenId);
-  if (target) {
-    target.classList.add('active');
-    target.scrollTop = 0;
-  }
-  if (screenId === 'main-screen') updateMainUI();
-  if (screenId === 'level-screen') renderLevelGrid();
-  if (screenId === 'exchange-screen') updateExchangeUI();
+  const t = document.getElementById(id);
+  if (t) { t.classList.add('active'); t.scrollTop = 0; }
+  if (id === 'main-screen') updateMain();
+  if (id === 'commander-screen') updateCommander();
+  if (id === 'codex-screen') renderCodex('units');
+  if (id === 'level-screen') renderLevels();
+  if (id === 'exchange-screen') updateExchangeUI();
 }
 
-function openModal(id) {
-  document.getElementById(id).classList.add('show');
-  if (id === 'task-modal') renderTasks();
-  if (id === 'sign-modal') renderSignIn();
-  if (id === 'achievement-modal') renderAchievements();
-}
+function openModal(id) { document.getElementById(id).classList.add('show'); if (id === 'task-modal') renderTasks(); if (id === 'sign-modal') renderSign(); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('show');
-}
+let toastT;
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2000); }
 
-// ===== TOAST =====
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// ===== COIN RAIN =====
-function coinRain(count = 20) {
-  const container = document.getElementById('coinRain');
-  for (let i = 0; i < count; i++) {
-    const coin = document.createElement('div');
-    coin.className = 'coin-particle';
-    coin.textContent = '&#x1FA99;';
-    coin.style.left = Math.random() * 90 + '%';
-    coin.style.animationDelay = Math.random() * 0.8 + 's';
-    coin.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-    container.appendChild(coin);
-    setTimeout(() => coin.remove(), 3000);
-  }
-}
+function coinRain(n = 20) { const c = document.getElementById('coinRain'); for (let i = 0; i < n; i++) { const p = document.createElement('div'); p.className = 'coin-p'; p.style.left = Math.random() * 90 + '%'; p.style.animationDelay = Math.random() * 0.8 + 's'; p.style.animationDuration = (1.5 + Math.random() * 2) + 's'; c.appendChild(p); setTimeout(() => p.remove(), 3500); } }
 
 // ===== SPLASH =====
-(function initSplash() {
-  const stars = document.getElementById('splashStars');
-  for (let i = 0; i < 50; i++) {
-    const s = document.createElement('div');
-    s.className = 'splash-star';
-    s.style.left = Math.random() * 100 + '%';
-    s.style.top = Math.random() * 100 + '%';
-    s.style.animationDelay = Math.random() * 3 + 's';
-    s.style.width = (2 + Math.random() * 4) + 'px';
-    s.style.height = s.style.width;
-    stars.appendChild(s);
-  }
-  const bar = document.getElementById('splashBar');
-  let p = 0;
-  const int = setInterval(() => {
-    p += Math.random() * 15;
-    if (p >= 100) { p = 100; clearInterval(int); }
-    bar.style.width = p + '%';
-  }, 200);
-  setTimeout(() => {
-    navigateTo('auth-screen');
-  }, 2500);
+(function() {
+  const bar = document.getElementById('splashBar'); let p = 0;
+  const iv = setInterval(() => { p += Math.random() * 18; if (p >= 100) { p = 100; clearInterval(iv); } bar.style.width = p + '%'; }, 250);
+  setTimeout(() => navigateTo('auth-screen'), 2800);
 })();
 
 // ===== AUTH =====
-document.querySelectorAll('.auth-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const isLogin = tab.dataset.tab === 'login';
-    document.getElementById('loginForm').style.display = isLogin ? 'flex' : 'none';
-    document.getElementById('registerForm').style.display = isLogin ? 'none' : 'flex';
-  });
-});
+document.querySelectorAll('.auth-tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.auth-tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  const isLogin = t.dataset.tab === 'login';
+  document.getElementById('loginForm').style.display = isLogin ? 'flex' : 'none';
+  document.getElementById('registerForm').style.display = isLogin ? 'none' : 'flex';
+}));
+function handleAuth() { showToast('登录成功！'); coinRain(15); setTimeout(() => navigateTo('main-screen'), 500); }
+function handleGuest() { showToast('游客模式'); setTimeout(() => navigateTo('main-screen'), 300); }
 
-function handleLogin() {
-  State.loggedIn = true;
-  showToast('登录成功！');
-  coinRain(15);
-  setTimeout(() => navigateTo('main-screen'), 600);
-}
-
-function handleRegister() {
-  State.loggedIn = true;
-  showToast('注册成功！');
-  coinRain(15);
-  setTimeout(() => navigateTo('main-screen'), 600);
-}
-
-function handleGuestLogin() {
-  State.loggedIn = true;
-  showToast('游客模式');
-  setTimeout(() => navigateTo('main-screen'), 400);
-}
-
-// ===== MAIN UI =====
-function updateMainUI() {
+// ===== MAIN =====
+function updateMain() {
   document.getElementById('mainGold').textContent = State.gold.toLocaleString();
   document.getElementById('mainCash').textContent = State.cash.toFixed(2);
+  const rank = RANKS[State.cmdRank - 1];
+  document.getElementById('mainRank').textContent = rank.name;
+  document.getElementById('mainCommanderImg').src = IMG.commander[Math.min(State.cmdRank - 1, IMG.commander.length - 1)];
+  document.getElementById('mainStatCmd').textContent = rank.cmd;
+  document.getElementById('mainStatMorale').textContent = '+' + rank.morale + '%';
+  document.getElementById('mainStatExp').textContent = State.cmdExp.toLocaleString();
 }
 
-// ===== LEVEL SELECT =====
-function selectWorld(idx) {
-  if (idx > 0 && State.levelProgress[idx - 1] < 8) {
-    showToast('需要完成上一世界80%关卡');
-    return;
-  }
-  State.currentWorld = idx;
-  document.querySelectorAll('.world-tab').forEach((t, i) => {
-    t.classList.toggle('active', i === idx);
-    if (i > 0 && State.levelProgress[i - 1] < 8) t.classList.add('locked');
-    else t.classList.remove('locked');
-  });
-  renderLevelGrid();
+// ===== COMMANDER =====
+function updateCommander() {
+  const rank = RANKS[State.cmdRank - 1];
+  const nextRank = RANKS[State.cmdRank];
+  document.getElementById('cmPortrait').src = IMG.commander[Math.min(State.cmdRank - 1, IMG.commander.length - 1)];
+  document.getElementById('cmRank').textContent = rank.name + ' · 阶段' + State.cmdRank;
+  const expNeeded = nextRank ? nextRank.exp - rank.exp : 0;
+  const expProgress = nextRank ? State.cmdExp - rank.exp : expNeeded;
+  const pct = nextRank ? Math.min(100, (expProgress / expNeeded) * 100) : 100;
+  document.getElementById('cmExpFill').style.width = pct + '%';
+  document.getElementById('cmExpTxt').textContent = nextRank ? '经验 ' + State.cmdExp.toLocaleString() + ' / ' + nextRank.exp.toLocaleString() : '已满级';
+  document.getElementById('cmStatCmd').textContent = rank.cmd;
+  document.getElementById('cmStatMorale').textContent = '+' + rank.morale + '%';
+  document.getElementById('cmStatGrain').textContent = rank.grain;
+  document.getElementById('cmStatClears').textContent = State.cmdTotalClears;
+  // Skills
+  const sk = document.getElementById('cmSkills');
+  sk.innerHTML = SKILLS.map(s => `
+    <div class="cm-skill ${State.cmdRank < s.rank ? 'locked' : ''}">
+      <div class="sk-ico">${s.icon}</div>
+      <div class="sk-info"><div class="sk-name">${s.name} ${State.cmdRank < s.rank ? '(阶段' + s.rank + '解锁)' : ''}</div><div class="sk-desc">${s.desc}</div></div>
+    </div>`).join('');
+  // Rank track
+  const rt = document.getElementById('cmRankTrack');
+  rt.innerHTML = RANKS.map((r, i) => `
+    <div class="rank-step ${i < State.cmdRank - 1 ? 'passed' : ''} ${i === State.cmdRank - 1 ? 'current' : ''}">
+      <div class="rs-num">${i + 1}</div>
+      <div><div class="rs-name">${r.name}</div><div class="rs-unlock">解锁: ${r.unlock} · 统帅${r.cmd}</div></div>
+    </div>`).join('');
 }
 
-function renderLevelGrid() {
-  const grid = document.getElementById('levelGrid');
+// ===== CODEX =====
+let codexTab = 'units';
+function switchCodex(tab) { codexTab = tab; document.querySelectorAll('.cd-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab)); renderCodex(tab); }
+function renderCodex(tab) {
+  const list = document.getElementById('codexList');
+  let data;
+  if (tab === 'units') data = IMG.units.map(u => ({ ...u, locked: State.cmdRank < u.rank }));
+  else if (tab === 'weapons') data = IMG.weapons.map(w => ({ ...w, locked: State.cmdRank < w.rank }));
+  else data = IMG.enemies;
+  list.innerHTML = data.map(d => `
+    <div class="cd-card ${d.locked ? 'locked' : ''}">
+      <div class="cd-img"><img src="${d.img}" alt="" loading="lazy"></div>
+      <div class="cd-info">
+        <div class="cd-name">${d.name} ${d.locked ? '&#x1F512;' : ''}</div>
+        <div class="cd-type">${d.type || d.weapon || ''}</div>
+        ${tab === 'units' ? `<div class="cd-stats"><span class="cd-stat">攻<span class="v">${d.atk}</span></span><span class="cd-stat">血<span class="v">${d.hp}</span></span><span class="cd-stat">速<span class="v">${d.spd}</span></span><span class="cd-stat">粮<span class="v">${d.cost}</span></span></div>` : ''}
+        ${tab === 'enemies' ? `<div class="cd-stats"><span class="cd-stat">攻<span class="v">${d.atk}</span></span><span class="cd-stat">血<span class="v">${d.hp}</span></span><span class="cd-stat">速<span class="v">${d.spd}</span></span></div>` : ''}
+        ${tab === 'weapons' ? `<div class="cd-stats"><span class="cd-stat">加成<span class="v">${d.bonus}</span></span><span class="cd-stat">装备<span class="v">${d.unit}</span></span></div>` : ''}
+        <div class="cd-desc">${d.desc || d.effect || ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===== LEVELS =====
+function renderLevels() {
+  const ch = document.getElementById('lvlChapters');
+  ch.innerHTML = CHAPTERS.map((c, i) => {
+    const unlocked = i === 0 || State.levelProgress[i - 1] >= 8;
+    return `<div class="lvl-chapter ${i === State.currentChapter ? 'active' : ''} ${!unlocked ? 'locked' : ''}" onclick="${unlocked ? `selectChapter(${i})` : `showToast('需通关前一章8关')`}"><div class="ch-emoji">${c.emoji}</div><div class="ch-name">${c.name}</div></div>`;
+  }).join('');
+  const grid = document.getElementById('lvlGrid');
+  const prog = State.levelProgress[State.currentChapter];
+  const names = ['初战','来袭','夜袭','突袭','坡道','营地','护送','决战','反攻','大王'];
   grid.innerHTML = '';
-  const w = State.currentWorld;
-  const maxProgress = State.levelProgress[w];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < LEVELS_PER_CHAPTER; i++) {
     const node = document.createElement('div');
-    node.className = 'level-node';
-    if (i < maxProgress) {
-      node.classList.add('completed');
-      node.innerHTML = `<span class="level-star">&#x2B50;</span><span class="level-num">${i+1}</span>`;
-    } else if (i === maxProgress) {
-      node.classList.add('current');
-      node.innerHTML = `<span class="level-num">${i+1}</span>`;
-    } else {
-      node.classList.add('locked');
-      node.innerHTML = `<span class="level-num">&#x1F512;</span>`;
-    }
-    if (i <= maxProgress) {
-      node.onclick = () => { State.currentLevel = i; startGame(i); };
-    }
+    const completed = i < prog;
+    const current = i === prog;
+    node.className = 'lvl-node ' + (completed ? 'completed' : current ? 'current' : 'locked');
+    const baseGold = 100 + State.currentChapter * 50 + i * 20;
+    node.innerHTML = `
+      <div class="ln-num">${State.currentChapter + 1}-${i + 1}</div>
+      <div class="ln-name">${CHAPTERS[State.currentChapter].emoji} ${names[i]}</div>
+      ${completed ? '<div class="ln-stars">&#x2B50;&#x2B50;&#x2B50;</div>' : current ? '<div class="ln-stars" style="color:var(--gold);">可挑战</div>' : '<div class="ln-stars">&#x1F512;</div>'}
+      <div class="ln-reward">&#x1FA99; ${baseGold}</div>`;
+    if (completed || current) node.onclick = () => { State.currentLevel = i; startBattle(); };
     grid.appendChild(node);
   }
 }
+function selectChapter(i) { State.currentChapter = i; renderLevels(); }
 
-// ===== GAME ENGINE =====
-let gameRunning = false, gamePaused = false, gameReqId = null;
-let gameState = {};
+// ===== BATTLE =====
+let battleState = null, battleTimer = null, battleRunning = false, battlePaused = false;
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-function resizeCanvas() {
-  const container = canvas.parentElement;
-  canvas.width = container.clientWidth;
-  canvas.height = container.clientHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-
-function startGame(levelIdx) {
-  navigateTo('game-screen');
-  setTimeout(() => {
-    resizeCanvas();
-    initGameState(levelIdx);
-    gameRunning = true;
-    gamePaused = false;
-    document.getElementById('pauseOverlay').classList.remove('show');
-    gameLoop();
-  }, 300);
-}
-
-function initGameState(levelIdx) {
-  const w = canvas.width, h = canvas.height;
-  const isDaily = levelIdx === -1;
-  const lvl = isDaily ? 8 : levelIdx;
-  const speed = 2.5 + lvl * 0.3;
-  const levelLength = 4000 + lvl * 600;
-
-  gameState = {
-    // Player
-    px: w * 0.2, py: h * 0.55, pw: 50, ph: 60,
-    vy: 0, isJumping: false, canDoubleJump: true,
-    grounded: true, hp: 3, maxHp: 3,
-    // World
-    scrollX: 0, speed: speed, levelLength: levelLength,
-    groundY: h * 0.75, gravity: 0.6,
-    // Coins & obstacles
-    coins: [], obstacles: [],
-    // Stats
-    collected: 0, distance: 0, time: 0, noDamage: true,
-    // Level specific
-    obstacleTimer: 0, coinTimer: 0,
-    obstacleInterval: Math.max(40, 90 - lvl * 5),
-    coinInterval: Math.max(15, 40 - lvl * 2),
-    // World theme
-    world: isDaily ? Math.floor(Math.random() * 3) : State.currentWorld,
-    levelIdx: levelIdx,
-    finished: false, failed: false,
+function startBattle() {
+  navigateTo('battle-screen');
+  const rank = RANKS[State.cmdRank - 1];
+  const lvl = State.currentLevel;
+  const ch = State.currentChapter;
+  const waves = 3 + Math.floor(lvl / 3) + ch;
+  battleState = {
+    gold: 0, time: 0, grain: rank.grain, maxGrain: rank.grain,
+    baseHp: 100, maxBaseHp: 100, wave: 1, maxWaves: waves,
+    units: [], enemies: [], projectiles: [],
+    selectedUnit: null, spawnTimer: 0, enemySpawnTimer: 0,
+    waveEnemiesLeft: 0, waveEnemiesSpawned: 0, waveEnemyTotal: 5 + lvl * 2 + waves * 3,
+    betweenWaves: false, waveDelay: 0,
+    levelIdx: lvl, chapter: ch, finished: false, failed: false,
+    noDamage: true, totalKilled: 0, deployed: 0,
   };
-
-  generateLevelContent();
-  updateHUD();
+  document.getElementById('battleBg').src = IMG.battleBg[Math.min(ch, IMG.battleBg.length - 1)];
+  renderDeployBar();
+  renderSkillBar();
+  updateBattleHUD();
+  battleRunning = true; battlePaused = false;
+  document.getElementById('pauseOverlay').classList.remove('show');
+  if (battleTimer) clearInterval(battleTimer);
+  battleTimer = setInterval(battleTick, 100);
 }
 
-function generateLevelContent() {
-  const gs = gameState;
-  gs.coins = [];
-  gs.obstacles = [];
-  const w = canvas.width;
-  // Generate coins along the level
-  for (let x = 200; x < gs.levelLength - 200; x += 80 + Math.random() * 60) {
-    const y = gs.groundY - 80 - Math.random() * 250;
-    gs.coins.push({ x, y, r: 16, collected: false });
+function renderDeployBar() {
+  const bar = document.getElementById('deployBar');
+  const available = IMG.units.filter(u => State.cmdRank >= u.rank);
+  bar.innerHTML = available.map((u, i) => `
+    <div class="deploy-slot ${battleState.grain < u.cost ? 'locked' : ''} ${battleState.selectedUnit === i ? 'selected' : ''}" onclick="selectDeployUnit(${i})">
+      <div class="ds-img"><img src="${u.img}" alt=""></div>
+      <div class="ds-cost">&#x1F35E;${u.cost}</div>
+      <div class="ds-name">${u.name}</div>
+    </div>`).join('');
+}
+
+function renderSkillBar() {
+  const bar = document.getElementById('skillBar');
+  bar.innerHTML = SKILLS.map((s, i) => `
+    <div class="skill-btn ${State.cmdRank < s.rank ? 'locked' : ''}" onclick="${State.cmdRank >= s.rank ? `useSkill(${i})` : ''}">
+      ${s.icon}
+      ${State.cmdRank >= s.rank ? '' : '<div class="skill-cd">' + s.rank + '阶</div>'}
+    </div>`).join('');
+}
+
+function selectDeployUnit(idx) {
+  const u = IMG.units.filter(x => State.cmdRank >= x.rank)[idx];
+  if (battleState.grain < u.cost) { showToast('粮草不足！'); return; }
+  battleState.selectedUnit = battleState.selectedUnit === idx ? null : idx;
+  renderDeployBar();
+  // Deploy at base position (left side)
+  if (battleState.selectedUnit === idx) {
+    deployUnit(u);
+    battleState.selectedUnit = null;
+    renderDeployBar();
   }
-  // Generate obstacles
-  for (let x = 400; x < gs.levelLength - 300; x += 300 + Math.random() * 250) {
-    const types = ['spike', 'block', 'tall', 'pit'];
-    const type = types[Math.floor(Math.random() * types.length)];
-    if (type === 'spike') {
-      gs.obstacles.push({ x, y: gs.groundY - 30, w: 30, h: 30, type });
-    } else if (type === 'block') {
-      gs.obstacles.push({ x, y: gs.groundY - 50, w: 50, h: 50, type });
-    } else if (type === 'tall') {
-      gs.obstacles.push({ x, y: gs.groundY - 120, w: 40, h: 120, type });
-    } else if (type === 'pit') {
-      gs.obstacles.push({ x, y: gs.groundY + 20, w: 100, h: 5, type });
+}
+
+function deployUnit(unitData) {
+  if (battleState.grain < unitData.cost) return;
+  battleState.grain -= unitData.cost;
+  battleState.deployed++;
+  const rank = RANKS[State.cmdRank - 1];
+  const moraleBonus = 1 + rank.morale / 100;
+  const unit = {
+    id: Date.now() + Math.random(),
+    name: unitData.name, img: unitData.img,
+    x: 60 + Math.random() * 40, y: 40 + Math.random() * 20,
+    hp: unitData.hp, maxHp: unitData.hp,
+    atk: Math.floor(unitData.atk * moraleBonus),
+    range: unitData.range === '近身' ? 50 : unitData.range === '远' ? 200 : 300,
+    spd: parseFloat(unitData.spd), atkTimer: 0,
+    isRanged: unitData.range !== '近身',
+    moveSpd: unitData.name.includes('骑兵') ? 1.5 : 0.8,
+    type: 'ally',
+  };
+  battleState.units.push(unit);
+  renderUnit(unit);
+  renderDeployBar();
+  updateBattleHUD();
+}
+
+function renderUnit(unit) {
+  const container = document.getElementById('battleUnits');
+  const el = document.createElement('div');
+  el.className = 'unit-sprite' + (unit.type === 'enemy' ? ' enemy' : '');
+  el.id = 'unit-' + unit.id;
+  el.style.left = unit.x + '%';
+  el.style.top = unit.y + '%';
+  el.innerHTML = `<div class="unit-hp-bar"><div class="unit-hp-fill" style="width:100%"></div></div><img src="${unit.img}" alt="">`;
+  container.appendChild(el);
+}
+
+function spawnEnemy() {
+  const lvl = battleState.levelIdx;
+  const ch = battleState.chapter;
+  const enemyPool = IMG.enemies.filter((e, i) => i <= 3 + ch);
+  const ed = enemyPool[Math.floor(Math.random() * enemyPool.length)];
+  const scale = 1 + (ch * 0.15) + (lvl * 0.05);
+  const enemy = {
+    id: Date.now() + Math.random(),
+    name: ed.name, img: ed.img,
+    x: 95, y: 40 + Math.random() * 20,
+    hp: Math.floor(ed.hp * scale), maxHp: Math.floor(ed.hp * scale),
+    atk: Math.floor(ed.atk * scale),
+    range: 50, spd: 1.2, atkTimer: 0,
+    moveSpd: ed.spd === '快' ? 1.5 : ed.spd === '慢' ? 0.5 : ed.spd === '极慢' ? 0.3 : 0.9,
+    type: 'enemy',
+  };
+  battleState.enemies.push(enemy);
+  renderUnit(enemy);
+}
+
+function battleTick() {
+  if (!battleRunning || battlePaused) return;
+  const bs = battleState;
+  bs.time += 0.1;
+
+  // Wave management
+  if (bs.betweenWaves) {
+    bs.waveDelay -= 0.1;
+    if (bs.waveDelay <= 0) {
+      bs.betweenWaves = false;
+      bs.wave++;
+      if (bs.wave > bs.maxWaves) { endBattle(true); return; }
+      bs.waveEnemiesSpawned = 0;
+      bs.waveEnemyTotal = 5 + bs.levelIdx * 2 + bs.wave * 3;
+      document.getElementById('waveInfo').textContent = `第 ${bs.wave}/${bs.maxWaves} 波`;
+    }
+  } else {
+    // Spawn enemies
+    bs.enemySpawnTimer += 0.1;
+    if (bs.enemySpawnTimer >= 1.5 && bs.waveEnemiesSpawned < bs.waveEnemyTotal) {
+      bs.enemySpawnTimer = 0;
+      spawnEnemy();
+      bs.waveEnemiesSpawned++;
+    }
+    // Check wave complete
+    if (bs.waveEnemiesSpawned >= bs.waveEnemyTotal && bs.enemies.length === 0) {
+      if (bs.wave >= bs.maxWaves) { endBattle(true); return; }
+      bs.betweenWaves = true;
+      bs.waveDelay = 3;
+      document.getElementById('waveInfo').textContent = `第 ${bs.wave + 1}波 准备...`;
     }
   }
-  // Add chests
-  for (let x = 1200; x < gs.levelLength; x += 2000 + Math.random() * 1000) {
-    gs.coins.push({ x, y: gs.groundY - 100, r: 30, collected: false, isChest: true, value: 50 });
-  }
-}
 
-function gameLoop() {
-  if (!gameRunning) return;
-  if (!gamePaused) {
-    update();
-    render();
-  }
-  gameReqId = requestAnimationFrame(gameLoop);
-}
-
-function update() {
-  const gs = gameState;
-  gs.time += 1 / 60;
-  gs.distance += gs.speed;
-  gs.scrollX += gs.speed;
-
-  // Player physics
-  gs.vy += gs.gravity;
-  gs.py += gs.vy;
-  if (gs.py >= gs.groundY - gs.ph) {
-    gs.py = gs.groundY - gs.ph;
-    gs.vy = 0;
-    gs.isJumping = false;
-    gs.grounded = true;
-    gs.canDoubleJump = true;
-  }
-
-  // Coin collection
-  gs.coins.forEach(c => {
-    if (c.collected) return;
-    const dx = (c.x - gs.scrollX) - gs.px;
-    const dy = c.y - (gs.py + gs.ph / 2);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const colR = c.r + gs.pw / 2;
-    if (dist < colR) {
-      c.collected = true;
-      gs.collected += c.isChest ? c.value : 1;
-      updateHUD();
-    }
-  });
-
-  // Obstacle collision
-  gs.obstacles.forEach(o => {
-    const ox = o.x - gs.scrollX;
-    if (ox < -100 || ox > canvas.width + 100) return;
-    if (o.type === 'pit') {
-      if (gs.py >= gs.groundY - 10 && gs.px + gs.pw > ox && gs.px < ox + o.w) {
-        damagePlayer();
+  // Update units (allies move right toward enemies)
+  bs.units.forEach(u => {
+    if (u.hp <= 0) return;
+    // Find nearest enemy
+    let nearest = null, minDist = 9999;
+    bs.enemies.forEach(e => { if (e.hp <= 0) return; const d = Math.abs(e.x - u.x); if (d < minDist) { minDist = d; nearest = e; } });
+    if (nearest) {
+      const dist = Math.abs(nearest.x - u.x);
+      if (dist > u.range) {
+        u.x += u.moveSpd * 0.5;
+      } else {
+        u.atkTimer += 0.1;
+        if (u.atkTimer >= u.spd) {
+          u.atkTimer = 0;
+          nearest.hp -= u.atk;
+          if (u.isRanged) spawnProjectile(u, nearest);
+          if (nearest.hp <= 0) { bs.totalKilled++; bs.gold += 5; }
+        }
       }
-      return;
-    }
-    const playerRect = { x: gs.px, y: gs.py, w: gs.pw, h: gs.ph };
-    const obsRect = { x: ox, y: o.y, w: o.w, h: o.h };
-    if (rectsCollide(playerRect, obsRect)) {
-      damagePlayer();
-      o.x = -9999; // prevent multi-hit
-    }
-  });
-
-  // Check finish
-  if (gs.distance >= gs.levelLength && !gs.finished) {
-    gs.finished = true;
-    endGame(true);
-  }
-
-  // Check fall death
-  if (gs.py > canvas.height + 100) {
-    gs.failed = true;
-    endGame(false);
-  }
-
-  updateHUD();
-}
-
-function rectsCollide(a, b) {
-  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-}
-
-function damagePlayer() {
-  const gs = gameState;
-  gs.hp--;
-  gs.noDamage = false;
-  gs.vy = -8;
-  updateHUD();
-  if (gs.hp <= 0) {
-    gs.failed = true;
-    endGame(false);
-  }
-}
-
-function render() {
-  const gs = gameState;
-  const w = canvas.width, h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-
-  // Background gradient based on world
-  const bgColors = [
-    ['#87CEEB', '#98FB98', '#E0F7FA'], // Grassland
-    ['#FFCC80', '#FFE0B2', '#FFF8E1'], // Desert
-    ['#B0E0E6', '#E0F7FA', '#F0F8FF'], // Snow
-  ];
-  const bg = bgColors[gs.world];
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, bg[0]); grad.addColorStop(0.5, bg[1]); grad.addColorStop(1, bg[2]);
-  ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-
-  // Ground
-  const groundColors = ['#4CAF50', '#D2691E', '#B0E0E6'];
-  ctx.fillStyle = groundColors[gs.world];
-  ctx.fillRect(0, gs.groundY, w, h - gs.groundY);
-  ctx.fillStyle = groundColors[gs.world] + '99';
-  ctx.fillRect(0, gs.groundY, w, 4);
-
-  // Decorative ground elements
-  ctx.fillStyle = groundColors[gs.world] + '60';
-  for (let i = 0; i < w; i += 60) {
-    ctx.fillRect(i + ((gs.scrollX * 0.3) % 60), gs.groundY + 10, 30, 3);
-  }
-
-  // Coins
-  gs.coins.forEach(c => {
-    const sx = c.x - gs.scrollX;
-    if (sx < -50 || sx > w + 50 || c.collected) return;
-    ctx.save();
-    ctx.translate(sx, c.y);
-    if (c.isChest) {
-      ctx.font = '36px serif'; ctx.fillText('&#x1F4E6;', -18, 12);
     } else {
-      const scale = Math.abs(Math.cos(gs.time * 5));
-      ctx.scale(1, scale * 0.5 + 0.5);
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath(); ctx.arc(0, 0, c.r, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#FFA500';
-      ctx.beginPath(); ctx.arc(0, 0, c.r - 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#FFD700';
-      ctx.font = '16px serif'; ctx.fillText('$', -5, 6);
+      u.x += u.moveSpd * 0.3;
     }
-    ctx.restore();
+    const el = document.getElementById('unit-' + u.id);
+    if (el) { el.style.left = u.x + '%'; el.querySelector('.unit-hp-fill').style.width = Math.max(0, u.hp / u.maxHp * 100) + '%'; }
   });
 
-  // Obstacles
-  gs.obstacles.forEach(o => {
-    const sx = o.x - gs.scrollX;
-    if (sx < -100 || sx > w + 100) return;
-    if (o.type === 'spike') {
-      ctx.fillStyle = '#FF5252';
-      ctx.beginPath(); ctx.moveTo(sx + o.w/2, o.y); ctx.lineTo(sx, o.y + o.h); ctx.lineTo(sx + o.w, o.y + o.h); ctx.closePath(); ctx.fill();
-    } else if (o.type === 'block') {
-      ctx.fillStyle = '#795548'; ctx.fillRect(sx, o.y, o.w, o.h);
-      ctx.fillStyle = '#5D4037'; ctx.fillRect(sx + 2, o.y + 2, o.w - 4, o.h - 4);
-    } else if (o.type === 'tall') {
-      ctx.fillStyle = '#607D8B'; ctx.fillRect(sx, o.y, o.w, o.h);
-      ctx.fillStyle = '#455A64'; ctx.fillRect(sx + 3, o.y + 3, o.w - 6, o.h - 6);
-    } else if (o.type === 'pit') {
-      ctx.fillStyle = '#333'; ctx.fillRect(sx, o.y, o.w, o.h);
-      ctx.fillStyle = '#111'; ctx.fillRect(sx + 2, o.y + 1, o.w - 4, o.h - 2);
+  // Update enemies (move left toward base/units)
+  bs.enemies.forEach(e => {
+    if (e.hp <= 0) return;
+    // Find nearest ally
+    let nearest = null, minDist = 9999;
+    bs.units.forEach(u => { if (u.hp <= 0) return; const d = Math.abs(u.x - e.x); if (d < minDist) { minDist = d; nearest = u; } });
+    if (nearest && minDist < e.range) {
+      e.atkTimer += 0.1;
+      if (e.atkTimer >= e.spd) { e.atkTimer = 0; nearest.hp -= e.atk; }
+    } else if (nearest) {
+      e.x -= e.moveSpd * 0.5;
+    } else {
+      e.x -= e.moveSpd * 0.5;
+      if (e.x < 5) { bs.baseHp -= e.atk * 0.5; bs.noDamage = false; e.hp = 0; }
     }
+    const el = document.getElementById('unit-' + e.id);
+    if (el) { el.style.left = e.x + '%'; el.querySelector('.unit-hp-fill').style.width = Math.max(0, e.hp / e.maxHp * 100) + '%'; }
   });
 
-  // Finish flag
-  const fx = gs.levelLength - gs.scrollX;
-  if (fx > -50 && fx < w + 50) {
-    ctx.fillStyle = '#333'; ctx.fillRect(fx, gs.groundY - 120, 6, 120);
-    ctx.fillStyle = '#FF5252'; ctx.fillRect(fx + 6, gs.groundY - 120, 50, 35);
-    ctx.fillStyle = 'white'; ctx.font = 'bold 20px serif'; ctx.fillText('&#x1F3C1;', fx + 10, gs.groundY - 95);
-  }
+  // Remove dead
+  bs.units.filter(u => u.hp <= 0).forEach(u => { const el = document.getElementById('unit-' + u.id); if (el) el.remove(); });
+  bs.enemies.filter(e => e.hp <= 0).forEach(e => { const el = document.getElementById('unit-' + e.id); if (el) el.remove(); });
+  bs.units = bs.units.filter(u => u.hp > 0);
+  bs.enemies = bs.enemies.filter(e => e.hp > 0);
 
-  // Player
-  const px = gs.px, py = gs.py;
-  ctx.save();
-  ctx.translate(px + gs.pw/2, py + gs.ph/2);
-  // Body
-  ctx.fillStyle = '#FF8C42';
-  ctx.beginPath(); ctx.arc(0, -5, 22, 0, Math.PI * 2); ctx.fill();
-  // Head
-  ctx.fillStyle = '#FFCC80';
-  ctx.beginPath(); ctx.arc(0, -18, 18, 0, Math.PI * 2); ctx.fill();
-  // Eyes
-  ctx.fillStyle = 'white';
-  ctx.beginPath(); ctx.arc(-7, -22, 6, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(7, -22, 6, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#333';
-  ctx.beginPath(); ctx.arc(-6, -22, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(8, -22, 3, 0, Math.PI * 2); ctx.fill();
-  // Mouth
-  ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(0, -14, 8, 0.1, Math.PI - 0.1); ctx.stroke();
-  // Hat
-  ctx.fillStyle = '#FF5252';
-  ctx.fillRect(-16, -34, 32, 8);
-  ctx.fillRect(-10, -42, 20, 10);
-  ctx.restore();
+  // Grain regen
+  bs.grain = Math.min(bs.maxGrain, bs.grain + 0.3);
 
-  // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.beginPath(); ctx.ellipse(px + gs.pw/2, gs.groundY, 25, 8, 0, 0, Math.PI * 2); ctx.fill();
+  // Check fail
+  if (bs.baseHp <= 0) { endBattle(false); return; }
+
+  updateBattleHUD();
 }
 
-function updateHUD() {
-  const gs = gameState;
-  document.getElementById('gameCoin').textContent = gs.collected;
-  document.getElementById('gameTime').textContent = Math.floor(gs.time) + 's';
-  const progress = Math.min(100, Math.floor((gs.distance / gs.levelLength) * 100));
-  document.getElementById('gameProgress').style.width = progress + '%';
-  const hpContainer = document.getElementById('gameHp');
-  hpContainer.innerHTML = '';
-  for (let i = 0; i < gs.maxHp; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'game-hp-dot' + (i >= gs.hp ? ' lost' : '');
-    hpContainer.appendChild(dot);
-  }
+function spawnProjectile(from, to) {
+  const field = document.getElementById('battleField');
+  const p = document.createElement('div');
+  p.className = 'battle-projectile';
+  p.style.left = from.x + '%';
+  p.style.top = (from.y + 5) + '%';
+  p.style.background = '#FFD700';
+  p.style.boxShadow = '0 0 6px #FFD700';
+  field.appendChild(p);
+  let progress = 0;
+  const sx = from.x, sy = from.y + 5, ex = to.x, ey = to.y + 5;
+  const animProj = setInterval(() => {
+    progress += 0.1;
+    if (progress >= 1) { p.remove(); clearInterval(animProj); return; }
+    p.style.left = (sx + (ex - sx) * progress) + '%';
+    p.style.top = (sy + (ey - sy) * progress - Math.sin(progress * Math.PI) * 10) + '%';
+  }, 20);
 }
 
-function togglePause() {
-  gamePaused = !gamePaused;
-  document.getElementById('pauseOverlay').classList.toggle('show', gamePaused);
+function useSkill(idx) {
+  const s = SKILLS[idx];
+  if (State.cmdRank < s.rank) return;
+  if (s.name === '战鼓擂') { battleState.units.forEach(u => u.atk = Math.floor(u.atk * 1.3)); showToast('战鼓擂！全军攻击+30%'); setTimeout(() => battleState.units.forEach(u => u.atk = Math.floor(u.atk / 1.3)), 10000); }
+  if (s.name === '急救令') { battleState.units.forEach(u => u.hp = Math.min(u.maxHp, u.hp + u.maxHp * 0.3)); showToast('急救令！全军恢复30%生命'); }
+  if (s.name === '火矢齐射') { battleState.enemies.forEach(e => e.hp -= 100); showToast('火矢齐射！全屏火焰伤害'); }
+  if (s.name === '天降神兵') { const elite = IMG.units[6]; for (let i = 0; i < 3; i++) deployUnit({ ...elite, cost: 0 }); showToast('天降神兵！3名精锐参战'); }
 }
 
-function restartGame() {
-  cancelAnimationFrame(gameReqId);
-  gameRunning = false;
-  startGame(gameState.levelIdx);
+function updateBattleHUD() {
+  const bs = battleState;
+  document.getElementById('battleGold').textContent = bs.gold;
+  document.getElementById('battleTime').textContent = Math.floor(bs.time) + 's';
+  document.getElementById('baseHpFill').style.width = Math.max(0, bs.baseHp / bs.maxBaseHp * 100) + '%';
+  document.getElementById('grainDisplay').textContent = Math.floor(bs.grain);
+  document.getElementById('waveInfo').textContent = bs.betweenWaves ? `第 ${bs.wave + 1}波 准备...` : `第 ${bs.wave}/${bs.maxWaves} 波`;
 }
 
-function quitGame() {
-  cancelAnimationFrame(gameReqId);
-  gameRunning = false;
-  navigateTo('level-screen');
-}
+function togglePause() { battlePaused = !battlePaused; document.getElementById('pauseOverlay').classList.toggle('show', battlePaused); }
+function restartBattle() { if (battleTimer) clearInterval(battleTimer); battleRunning = false; document.getElementById('battleUnits').innerHTML = ''; startBattle(); }
+function quitBattle() { if (battleTimer) clearInterval(battleTimer); battleRunning = false; document.getElementById('battleUnits').innerHTML = ''; navigateTo('level-screen'); }
 
-function endGame(victory) {
-  gameRunning = false;
-  cancelAnimationFrame(gameReqId);
-  const gs = gameState;
-  const baseGold = (gs.levelIdx + 1) * 50 + 30;
+function endBattle(victory) {
+  battleRunning = false;
+  if (battleTimer) clearInterval(battleTimer);
+  const bs = battleState;
+  const baseGold = 100 + bs.chapter * 50 + bs.levelIdx * 20;
   let stars = 0;
   if (victory) stars = 1;
-  if (victory && gs.collected >= 30) stars = 2;
-  if (victory && gs.collected >= 50 && gs.noDamage) stars = 3;
-  const starCoef = [0, 1.0, 1.2, 1.5][stars];
-  let totalGold = Math.floor((baseGold * starCoef + gs.collected) * (gs.noDamage ? 1.1 : 1.0));
+  if (victory && bs.totalKilled >= bs.waveEnemyTotal * 0.8) stars = 2;
+  if (victory && bs.noDamage && bs.totalKilled >= bs.waveEnemyTotal) stars = 3;
+  const coef = [0, 1.0, 1.2, 1.5][stars];
+  const noDmgBonus = bs.noDamage ? 1.2 : 1.0;
+  const totalGold = Math.floor((baseGold * coef + bs.gold) * noDmgBonus);
+  const expGain = (victory ? 100 : 30) + bs.levelIdx * 20 + bs.chapter * 30;
 
   // Update state
   State.gold += totalGold;
-  State.totalCollected += gs.collected;
-  State.totalClears += victory ? 1 : 0;
-  State.totalStars += stars;
-  if (victory && gs.levelIdx >= State.levelProgress[gs.world]) {
-    State.levelProgress[gs.world] = gs.levelIdx + 1;
-    if (State.levelProgress[gs.world] >= 10) {
-      State.levelProgress[gs.world] = 10;
-    }
+  State.cmdExp += expGain;
+  if (victory) State.cmdTotalClears++;
+  // Check rank up
+  while (State.cmdRank < RANKS.length && State.cmdExp >= RANKS[State.cmdRank].exp) {
+    State.cmdRank++;
+    showToast('主帅晋升：' + RANKS[State.cmdRank - 1].name + '！');
+    coinRain(20);
   }
-  // Check achievements
-  if (victory && !State.achievements[0].unlocked) { State.achievements[0].unlocked = true; State.gold += 100; showToast('成就解锁：初出茅庐 +100金币'); }
-  if (State.levelProgress[0] >= 8 && !State.achievements[2].unlocked) { State.achievements[2].unlocked = true; State.gold += 1000; showToast('成就解锁：世界征服者 +1000金币'); }
-  if (State.levelProgress[1] >= 8 && !State.achievements[3].unlocked) { State.achievements[3].unlocked = true; State.gold += 2500; showToast('成就解锁：冰雪勇者 +2500金币'); }
-  if (victory && stars === 3 && gs.noDamage && !State.achievements[4].unlocked) { State.achievements[4].unlocked = true; State.gold += 500; showToast('成就解锁：完美通关 +500金币'); }
-  if (State.totalClears >= 100 && !State.achievements[8].unlocked) { State.achievements[8].unlocked = true; State.gold += 3000; showToast('成就解锁：传奇闯关者 +3000金币'); }
+  // Update level progress
+  if (victory && bs.levelIdx >= State.levelProgress[bs.chapter]) {
+    State.levelProgress[bs.chapter] = bs.levelIdx + 1;
+  }
   // Update tasks
-  State.tasks[0].progress = Math.min(State.tasks[0].goal, State.tasks[0].progress + 1);
-  State.tasks[1].progress = Math.max(State.tasks[1].progress, gs.collected);
-  State.tasks[2].progress = Math.min(State.tasks[2].goal, State.tasks[2].progress + stars);
-  if (gs.noDamage) State.tasks[3].progress = Math.min(State.tasks[3].goal, State.tasks[3].progress + 1);
+  State.tasks[0].prog = Math.min(State.tasks[0].goal, State.tasks[0].prog + (victory ? 1 : 0));
+  State.tasks[2].prog = Math.min(State.tasks[2].goal, State.tasks[2].prog + (victory && bs.noDamage ? 1 : 0));
+  State.tasks[3].prog = Math.min(State.tasks[3].goal, State.tasks[3].prog + bs.deployed);
 
   // Show result
   const card = document.getElementById('resultCard');
   card.innerHTML = `
-    <div class="result-emoji">${victory ? '&#x1F389;' : '&#x1F4A5;'}</div>
-    <div class="result-title">${victory ? '恭喜通关！' : '挑战失败'}</div>
+    <div style="font-size:48px;">${victory ? '&#x1F389;' : '&#x1F4A5;'}</div>
+    <div class="result-title">${victory ? '胜利！' : '基地失守'}</div>
     <div class="result-stars">
-      ${[1,2,3].map(i => `<div class="result-star ${i <= stars ? 'earned' : ''}" style="animation-delay:${i*0.2}s">&#x2B50;</div>`).join('')}
+      ${[1, 2, 3].map(i => `<div class="result-star ${i <= stars ? 'earned' : ''}" style="animation-delay:${i * 0.2}s">&#x2B50;</div>`).join('')}
     </div>
     <div class="result-detail">
-      <div class="result-row"><span>通关用时</span><span class="val">${Math.floor(gs.time)}s</span></div>
-      <div class="result-row"><span>收集金币</span><span class="val gold">${gs.collected}</span></div>
-      <div class="result-row"><span>关卡基础</span><span class="val gold">${Math.floor(baseGold * starCoef)}</span></div>
-      ${gs.noDamage ? '<div class="result-row"><span>无伤加成</span><span class="val gold">+10%</span></div>' : ''}
-      <div class="result-total">&#x1FA99; 合计获得：${totalGold.toLocaleString()} 金币</div>
+      <div class="result-row"><span>击杀敌军</span><span class="val">${bs.totalKilled}</span></div>
+      <div class="result-row"><span>战斗金币</span><span class="val">${bs.gold}</span></div>
+      <div class="result-row"><span>通关基础</span><span class="val">${Math.floor(baseGold * coef)}</span></div>
+      ${bs.noDamage ? '<div class="result-row"><span>无损加成</span><span class="val">+20%</span></div>' : ''}
+      <div class="result-row"><span>获得经验</span><span class="val">+${expGain}</span></div>
+      <div class="result-total">&#x1FA99; 合计 ${totalGold.toLocaleString()} 金币</div>
     </div>
     <div class="result-btns">
-      ${victory ? `<button class="result-btn next" onclick="playNextLevel()">下一关</button>` : ''}
-      <button class="result-btn replay" onclick="restartGame()">重新挑战</button>
-      ${!victory ? `<button class="result-btn ad" onclick="watchAdRevive()">&#x1F4FA; 观看广告复活</button>` : ''}
-      <button class="result-btn back" onclick="quitGame()">返回关卡列表</button>
-    </div>
-  `;
+      ${victory && bs.levelIdx < 9 ? `<button class="result-btn next" onclick="nextLevel()">下一关</button>` : ''}
+      <button class="result-btn replay" onclick="restartBattle()">重新挑战</button>
+      <button class="result-btn back" onclick="quitBattle()">返回关卡</button>
+    </div>`;
   navigateTo('result-screen');
-  if (victory) { coinRain(30); }
+  if (victory) coinRain(30);
+  document.getElementById('battleUnits').innerHTML = '';
 }
 
-function playNextLevel() {
-  const gs = gameState;
-  const nextLevel = gs.levelIdx + 1;
-  if (nextLevel < 10) {
-    State.currentLevel = nextLevel;
-    startGame(nextLevel);
-  } else {
-    showToast('已完成本世界全部关卡！');
-    navigateTo('level-screen');
-  }
-}
-
-function watchAdRevive() {
-  showToast('观看广告中...');
-  State.tasks[4].progress = Math.min(State.tasks[4].goal, State.tasks[4].progress + 1);
-  setTimeout(() => {
-    showToast('复活成功！');
-    gameState.hp = gameState.maxHp;
-    gameState.failed = false;
-    gameState.py = gameState.groundY - gameState.ph;
-    gameState.vy = 0;
-    gameRunning = true;
-    navigateTo('game-screen');
-    gameLoop();
-  }, 1500);
-}
+function nextLevel() { State.currentLevel++; startBattle(); }
 
 // ===== EXCHANGE =====
-function updateExchangeUI() {
-  document.getElementById('exGold').textContent = State.gold.toLocaleString();
-  document.getElementById('exCash').textContent = State.cash.toFixed(2);
-  document.getElementById('exInput').value = '10000';
-  updateExchange();
-}
-
-function updateExchange() {
-  const val = parseInt(document.getElementById('exInput').value) || 0;
-  const cash = val / 10000;
-  document.getElementById('exResult').textContent = `预计可得：${cash.toFixed(2)} 元`;
-  document.getElementById('exSubmit').disabled = val < 100000;
-}
-
-function maxExchange() {
-  document.getElementById('exInput').value = State.gold;
-  updateExchange();
-}
-
-function quickExchange(amount) {
-  if (amount > State.gold) { showToast('金币不足！'); return; }
-  document.getElementById('exInput').value = amount;
-  updateExchange();
-}
-
+function updateExchangeUI() { document.getElementById('exGold').textContent = State.gold.toLocaleString(); document.getElementById('exCash').textContent = State.cash.toFixed(2); updateExchange(); }
+function updateExchange() { const v = parseInt(document.getElementById('exInput').value) || 0; document.getElementById('exResult').textContent = `预计可得：${(v / 10000).toFixed(2)} 元`; }
+function quickEx(a) { if (a > State.gold) { showToast('金币不足！'); return; } document.getElementById('exInput').value = a; updateExchange(); }
+function maxEx() { document.getElementById('exInput').value = State.gold; updateExchange(); }
 function submitExchange() {
-  const val = parseInt(document.getElementById('exInput').value) || 0;
-  if (val < 100000) { showToast('最低兑换 100000 金币（10元）'); return; }
-  if (val > State.gold) { showToast('金币不足！'); return; }
-  const cash = val / 10000;
-  State.gold -= val;
-  State.cash += cash;
-  showToast(`兑换成功！获得 ${cash.toFixed(2)} 元`);
-  coinRain(20);
-  updateExchangeUI();
-  updateMainUI();
+  const v = parseInt(document.getElementById('exInput').value) || 0;
+  if (v < 100000) { showToast('最低兑换10万金币（10元）'); return; }
+  if (v > State.gold) { showToast('金币不足！'); return; }
+  const c = v / 10000;
+  State.gold -= v; State.cash += c;
+  showToast(`兑换成功！+${c.toFixed(2)}元`);
+  coinRain(20); updateExchangeUI();
 }
 
 // ===== TASKS =====
 function renderTasks() {
-  const list = document.getElementById('taskList');
-  list.innerHTML = State.tasks.map((t, i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:${t.done ? '#E8F5E9' : '#FFF8E1'};border-radius:12px;margin-bottom:6px;">
-      <div style="font-size:30px;">${t.done ? '&#x2705;' : '&#x1F4CB;'}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:14px;">${t.name}</div>
-        <div style="font-size:12px;color:var(--text-light);">${t.desc} (${t.progress}/${t.goal})</div>
-      </div>
-      <div style="font-weight:700;color:var(--gold-dark);">+${t.reward}</div>
-      ${t.progress >= t.goal && !t.done ? `<button style="padding:6px 12px;border-radius:8px;border:none;background:var(--gold);color:white;cursor:pointer;font-weight:700;" onclick="claimTask(${i})">领取</button>` : ''}
-    </div>
-  `).join('');
+  document.getElementById('taskList').innerHTML = State.tasks.map((t, i) => `
+    <div class="task-item">
+      <div class="ti-info"><div class="ti-name">${t.done ? '&#x2705;' : '&#x1F4CB;'} ${t.name}</div><div class="ti-desc">${t.desc} (${t.prog}/${t.goal})</div></div>
+      <div class="ti-reward">+${t.reward}</div>
+      ${t.prog >= t.goal && !t.done ? `<button class="task-claim" onclick="claimTask(${i})">领取</button>` : ''}
+    </div>`).join('');
 }
+function claimTask(i) { if (State.tasks[i].done) return; State.tasks[i].done = true; State.gold += State.tasks[i].reward; showToast(`+${State.tasks[i].reward}金币`); coinRain(10); renderTasks(); }
 
-function claimTask(idx) {
-  if (State.tasks[idx].done) return;
-  State.tasks[idx].done = true;
-  State.gold += State.tasks[idx].reward;
-  showToast(`获得 ${State.tasks[idx].reward} 金币！`);
-  coinRain(10);
-  renderTasks();
-  updateMainUI();
-}
-
-// ===== SIGN IN =====
-function renderSignIn() {
-  const grid = document.getElementById('signGrid');
+// ===== SIGN =====
+function renderSign() {
   const rewards = [100, 150, 200, 250, 350, 500, 1200];
-  grid.innerHTML = rewards.map((r, i) => `
-    <div style="text-align:center;padding:8px 4px;border-radius:10px;background:${i < State.signDay ? '#E8F5E9' : i === State.signDay ? '#FFF8DC' : '#F5F5F5'};${i === State.signDay ? 'border:2px solid #FFD700;' : ''}">
-      <div style="font-size:18px;font-weight:700;font-family:var(--font-number);">D${i+1}</div>
-      <div style="font-size:11px;color:var(--gold-dark);">+${r}</div>
+  document.getElementById('signGrid').innerHTML = rewards.map((r, i) => `
+    <div class="sign-day ${i < State.signDay ? 'claimed' : ''} ${i === State.signDay ? 'today' : ''}">
+      <div class="sd-num">D${i + 1}</div><div class="sd-reward">+${r}</div>
       ${i < State.signDay ? '<div style="font-size:14px;">&#x2705;</div>' : ''}
-    </div>
-  `).join('');
+    </div>`).join('');
   document.getElementById('signBtn').textContent = State.signDone ? '今日已签到' : '签到领金币';
   document.getElementById('signBtn').style.opacity = State.signDone ? '0.5' : '1';
   document.getElementById('signBtn').style.pointerEvents = State.signDone ? 'none' : 'auto';
 }
-
-function doSignIn() {
+function doSign() {
   if (State.signDone) return;
   State.signDone = true;
   const rewards = [100, 150, 200, 250, 350, 500, 1200];
-  const reward = rewards[State.signDay];
-  State.gold += reward;
+  const r = rewards[State.signDay];
+  State.gold += r;
   State.signDay = (State.signDay + 1) % 7;
-  showToast(`签到成功！+${reward} 金币`);
-  coinRain(15);
-  renderSignIn();
-  updateMainUI();
+  showToast(`签到成功！+${r}金币`);
+  coinRain(15); renderSign();
 }
-
-// ===== ACHIEVEMENTS =====
-function renderAchievements() {
-  const list = document.getElementById('achievementList');
-  list.innerHTML = State.achievements.map(a => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:${a.unlocked ? '#E8F5E9' : '#F5F5F5'};border-radius:12px;margin-bottom:6px;">
-      <div style="font-size:28px;">${a.unlocked ? '&#x1F3C6;' : '&#x1F512;'}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:14px;">${a.name}</div>
-        <div style="font-size:12px;color:var(--text-light);">${a.desc}</div>
-      </div>
-      <div style="font-weight:700;color:${a.unlocked ? 'var(--green-dark)' : 'var(--text-light)'};">+${a.reward}</div>
-    </div>
-  `).join('');
-}
-
-// ===== INPUT HANDLING =====
-canvas.addEventListener('click', (e) => {
-  if (!gameRunning || gamePaused || gameState.finished || gameState.failed) return;
-  if (!gameState.isJumping && gameState.grounded) {
-    gameState.vy = -12;
-    gameState.isJumping = true;
-    gameState.grounded = false;
-  } else if (gameState.isJumping && gameState.canDoubleJump) {
-    gameState.vy = -10;
-    gameState.canDoubleJump = false;
-  }
-});
-
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  if (!gameRunning || gamePaused || gameState.finished || gameState.failed) return;
-  if (!gameState.isJumping && gameState.grounded) {
-    gameState.vy = -12;
-    gameState.isJumping = true;
-    gameState.grounded = false;
-  } else if (gameState.isJumping && gameState.canDoubleJump) {
-    gameState.vy = -10;
-    gameState.canDoubleJump = false;
-  }
-});
-
-// ===== INIT =====
-renderLevelGrid();
-updateMainUI();
 </script>
 </body>
 </html>
