@@ -12,18 +12,6 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
 
 <template>
   <section class="screen main grain">
-    <!-- Q 版 CSS 场景背景：中军大帐 -->
-    <div class="scene">
-      <div class="tent-bg"></div>
-      <div class="tent-pillar l"></div>
-      <div class="tent-pillar r"></div>
-      <div class="lantern l"><div class="l-core"></div></div>
-      <div class="lantern r"><div class="l-core"></div></div>
-      <div class="scroll-l" v-for="i in 3" :key="'s'+i" :style="{ left: (6+i*3)+'%', top: (10+i*8)+'%', transform: `rotate(${-8+i*4}deg)` }"></div>
-      <div class="scroll-r" v-for="i in 3" :key="'t'+i" :style="{ right: (6+i*3)+'%', top: (12+i*8)+'%', transform: `rotate(${8-i*4}deg)` }"></div>
-    </div>
-    <div class="bg-overlay"></div>
-
     <!-- 顶部栏：余额 -->
     <header class="top">
       <div class="balance">
@@ -82,6 +70,9 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
       <div class="entry" @click="store.go('mine')">
         <div class="e-ico"><span class="ms">diamond</span></div><div class="e-t">挖矿工坊</div>
       </div>
+      <div class="entry" @click="store.go('world')">
+        <div class="e-ico"><span class="ms">public</span></div><div class="e-t">天下大势</div>
+      </div>
       <div class="entry" @click="store.go('profile')">
         <div class="e-ico"><span class="ms">group</span></div><div class="e-t">好友联盟</div>
       </div>
@@ -93,24 +84,7 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
 </template>
 
 <style scoped>
-.main { background: linear-gradient(180deg, #2a1a28 0%, #1a0e1a 100%); }
-/* === Q 版中军大帐背景 === */
-.scene { position: absolute; inset: 0; overflow: hidden; }
-.tent-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 35%, #6a3a4a 0%, #3a1f2e 45%, #1a0e1a 100%); }
-.tent-pillar { position: absolute; bottom: 0; width: 18px; height: 70%; background: linear-gradient(90deg, #5a3a1a, #3a2410, #5a3a1a); border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-.tent-pillar.l { left: 8%; }
-.tent-pillar.r { right: 8%; }
-.lantern { position: absolute; top: 12%; width: 36px; height: 46px; background: linear-gradient(180deg, var(--crimson), #5a0000); border: 2px solid var(--gold); border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; animation: lanternSway 3.5s ease-in-out infinite; transform-origin: top center; box-shadow: 0 0 24px rgba(255,120,60,0.5); }
-.lantern.l { left: 14%; }
-.lantern.r { right: 14%; animation-delay: -1.5s; }
-.lantern::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 2px; height: 8px; background: #3a2410; }
-.lantern::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 14px; height: 8px; background: var(--gold); border-radius: 0 0 4px 4px; }
-.l-core { position: absolute; inset: 6px; background: radial-gradient(circle, #fff3b0, #ff9a3c 70%); border-radius: 50%; filter: blur(2px); animation: flicker 1.2s ease-in-out infinite alternate; }
-@keyframes lanternSway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-@keyframes flicker { 0% { opacity: 0.85; } 100% { opacity: 1; } }
-.scroll-l, .scroll-r { position: absolute; width: 10px; height: 48px; background: linear-gradient(180deg, #d4a437, #8b6914); border-radius: 5px; opacity: 0.35; box-shadow: 0 0 8px rgba(212,164,55,0.3); }
-
-.bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,4,8,0.55) 0%, transparent 30%, transparent 55%, rgba(10,4,8,0.88) 100%); }
+.main { background: radial-gradient(ellipse at 50% 40%, #1a0e20 0%, #0a0610 100%); }
 
 .top { position: relative; z-index: 3; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
 .balance { display: flex; gap: 8px; }

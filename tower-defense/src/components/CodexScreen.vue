@@ -36,57 +36,83 @@ const weapons = computed(() => ([
     </header>
 
     <div class="tabs">
-      <div :class="['t', { on: tab==='units' }]" @click="tab='units'">兵种</div>
-      <div :class="['t', { on: tab==='towers' }]" @click="tab='towers'">防御塔</div>
-      <div :class="['t', { on: tab==='enemies' }]" @click="tab='enemies'">敌军</div>
-      <div :class="['t', { on: tab==='weapons' }]" @click="tab='weapons'">兵器</div>
+      <div :class="['t', { on: tab === 'units' }]" @click="tab = 'units'">兵种</div>
+      <div :class="['t', { on: tab === 'towers' }]" @click="tab = 'towers'">防御塔</div>
+      <div :class="['t', { on: tab === 'enemies' }]" @click="tab = 'enemies'">敌军</div>
+      <div :class="['t', { on: tab === 'weapons' }]" @click="tab = 'weapons'">兵器</div>
     </div>
 
-    <div class="list">
-      <template v-if="tab==='units'">
-        <div v-for="u in UNITS" :key="u.id" :class="['item', { lock: rankIdx + 1 < u.unlockRank }]">
-          <QAsset class="im" variant="unit" :src="u.asset" :name="u.name" :icon="UNIT_ICONS[u.id] || 'person'" :rounded="12" />
-          <div class="info">
-            <div class="nm">{{ u.name }} <span class="tag">{{ u.type==='melee'?'近战':u.type==='ranged'?'远程':u.type==='cavalry'?'骑兵':'攻城' }}</span></div>
-            <div class="ds">{{ u.desc }}</div>
-            <div class="stats">
-              <span><span class="ms si">favorite</span>{{ u.hp }}</span><span><span class="ms si">military_tech</span>{{ u.atk }}</span><span><span class="ms si">gps_fixed</span>{{ u.range }}</span><span><span class="ms si">grass</span>{{ u.cost }}</span>
-            </div>
-            <div class="lock-tip" v-if="rankIdx + 1 < u.unlockRank">需军阶 {{ u.unlockRank }} 解锁</div>
+    <div class="grid">
+      <!-- 兵种 -->
+      <template v-if="tab === 'units'">
+        <div v-for="u in UNITS" :key="u.id" :class="['card', { lock: rankIdx + 1 < u.unlockRank }]">
+          <div class="card-img">
+            <QAsset variant="unit" :src="u.asset" :name="u.name" :icon="UNIT_ICONS[u.id] || 'person'" :rounded="14" />
+            <div v-if="rankIdx + 1 < u.unlockRank" class="lock-overlay"><span class="ms">lock</span></div>
+          </div>
+          <div class="card-name">{{ u.name }}</div>
+          <div class="card-tags">
+            <span class="badge">{{ u.type === 'melee' ? '近战' : u.type === 'ranged' ? '远程' : u.type === 'cavalry' ? '骑兵' : '攻城' }}</span>
+          </div>
+          <div class="card-stats">
+            <span class="stat"><span class="ms si">favorite</span>{{ u.hp }}</span>
+            <span class="stat"><span class="ms si">military_tech</span>{{ u.atk }}</span>
+            <span class="stat"><span class="ms si">gps_fixed</span>{{ u.range }}</span>
+            <span class="stat"><span class="ms si">grass</span>{{ u.cost }}</span>
+          </div>
+          <div v-if="rankIdx + 1 < u.unlockRank" class="lock-tip">需军阶 {{ u.unlockRank }} 解锁</div>
+        </div>
+      </template>
+
+      <!-- 防御塔 -->
+      <template v-if="tab === 'towers'">
+        <div v-for="t in Object.values(TOWERS)" :key="t.kind" :class="['card', { lock: rankIdx + 1 < t.unlockRank }]">
+          <div class="card-img">
+            <QAsset variant="tower" :src="t.tiers[0].asset" :name="t.name" :icon="TOWER_ICONS[t.kind] || 'tower'" :tier="1" :rounded="14" />
+            <div v-if="rankIdx + 1 < t.unlockRank" class="lock-overlay"><span class="ms">lock</span></div>
+          </div>
+          <div class="card-name">{{ t.name }}</div>
+          <div class="card-tags">
+            <span class="badge tier">Lv.1-3</span>
+          </div>
+          <div class="card-stats">
+            <span v-if="t.tiers[0].range" class="stat"><span class="ms si">gps_fixed</span>{{ t.tiers[0].range }}</span>
+            <span v-if="t.tiers[0].damage" class="stat"><span class="ms si">military_tech</span>{{ t.tiers[0].damage }}</span>
+            <span class="stat"><span class="ms si">grass</span>{{ t.tiers[0].cost }}</span>
+          </div>
+          <div v-if="rankIdx + 1 < t.unlockRank" class="lock-tip">需军阶 {{ t.unlockRank }} 解锁</div>
+        </div>
+      </template>
+
+      <!-- 敌军 -->
+      <template v-if="tab === 'enemies'">
+        <div v-for="e in Object.values(ENEMIES)" :key="e.id" class="card">
+          <div class="card-img">
+            <QAsset variant="enemy" :src="e.asset" :name="e.name" :icon="ENEMY_ICONS[e.id] || 'skull'" :rounded="14" />
+          </div>
+          <div class="card-name">{{ e.name }}</div>
+          <div class="card-tags">
+            <span v-if="e.boss" class="badge boss">BOSS</span>
+          </div>
+          <div class="card-stats">
+            <span class="stat"><span class="ms si">favorite</span>{{ e.hp }}</span>
+            <span class="stat"><span class="ms si">military_tech</span>{{ e.atk }}</span>
+            <span class="stat"><span class="ms si">shield</span>{{ e.armor }}</span>
+            <span class="stat"><span class="ms si">payments</span>{{ e.bounty }}</span>
           </div>
         </div>
       </template>
-      <template v-if="tab==='towers'">
-        <div v-for="t in Object.values(TOWERS)" :key="t.kind" :class="['item', { lock: rankIdx + 1 < t.unlockRank }]">
-          <QAsset class="im" variant="tower" :src="t.tiers[0].asset" :name="t.name" :icon="TOWER_ICONS[t.kind] || 'tower'" :tier="1" :rounded="12" />
-          <div class="info">
-            <div class="nm">{{ t.name }} <span class="tag tier">3级可升</span></div>
-            <div class="ds">{{ t.desc }}</div>
-            <div class="stats">
-              <span v-if="t.tiers[0].range"><span class="ms si">gps_fixed</span>{{ t.tiers[0].range }}</span><span v-if="t.tiers[0].damage"><span class="ms si">military_tech</span>{{ t.tiers[0].damage }}</span><span><span class="ms si">grass</span>{{ t.tiers[0].cost }}</span>
-            </div>
+
+      <!-- 兵器 -->
+      <template v-if="tab === 'weapons'">
+        <div v-for="w in weapons" :key="w.id" class="card">
+          <div class="card-img">
+            <QAsset variant="weapon" :name="w.name" :icon="w.icon" :rounded="14" />
           </div>
-        </div>
-      </template>
-      <template v-if="tab==='enemies'">
-        <div v-for="e in Object.values(ENEMIES)" :key="e.id" class="item">
-          <QAsset class="im" variant="enemy" :src="e.asset" :name="e.name" :icon="ENEMY_ICONS[e.id] || 'skull'" :rounded="12" />
-          <div class="info">
-            <div class="nm">{{ e.name }} <span class="tag red" v-if="e.boss">BOSS</span></div>
-            <div class="ds">{{ e.desc }}</div>
-            <div class="stats">
-              <span><span class="ms si">favorite</span>{{ e.hp }}</span><span><span class="ms si">military_tech</span>{{ e.atk }}</span><span><span class="ms si">shield</span>{{ e.armor }}</span><span><span class="ms si">payments</span>{{ e.bounty }}</span>
-            </div>
-          </div>
-        </div>
-      </template>
-      <template v-if="tab==='weapons'">
-        <div v-for="w in weapons" :key="w.id" class="item">
-          <QAsset class="im" variant="weapon" :name="w.name" :icon="w.icon" :rounded="12" />
-          <div class="info">
-            <div class="nm">{{ w.name }}</div>
-            <div class="ds">{{ w.desc }}</div>
-            <div class="stats"><span>{{ w.dmg }}</span></div>
+          <div class="card-name">{{ w.name }}</div>
+          <div class="card-desc">{{ w.desc }}</div>
+          <div class="card-stats">
+            <span class="stat">{{ w.dmg }}</span>
           </div>
         </div>
       </template>
@@ -95,28 +121,206 @@ const weapons = computed(() => ([
 </template>
 
 <style scoped>
-.codex { background: linear-gradient(180deg, #0d1b2a 0%, #1a1a2e 100%); }
-.hd { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(0,0,0,0.4); }
-.back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
-.hd h1 { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
-.spacer { width: 38px; }
-.tabs { display: flex; gap: 6px; padding: 0 14px 12px; }
-.t { flex: 1; text-align: center; padding: 9px; border-radius: 10px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.45); cursor: pointer; border: 1px solid transparent; transition: all .2s; }
-.t.on { background: rgba(212,164,55,0.15); color: var(--gold); border-color: var(--gold); }
-.list { flex: 1; overflow-y: auto; padding: 0 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-.item { display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,164,55,0.18); border-radius: 14px; transition: transform .15s; }
-.item:active { transform: scale(0.98); }
-.item.lock { opacity: 0.45; }
-.im { width: 76px; height: 76px; border-radius: 12px; object-fit: cover; border: 2px solid var(--gold); flex-shrink: 0; }
-.im.enemy { border-color: var(--crimson-light); }
-.info { flex: 1; }
-.nm { font-family: var(--font-display); font-size: 16px; color: var(--gold-light); display: flex; align-items: center; gap: 6px; }
-.tag { font-family: var(--font-body); font-size: 10px; padding: 1px 6px; border-radius: 6px; background: rgba(46,125,91,0.3); color: #6BFF9E; }
-.tag.red { background: rgba(139,0,0,0.4); color: #ff8888; }
-.tag.tier { background: rgba(212,164,55,0.2); color: var(--gold); }
-.ds { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; line-height: 1.4; }
-.stats { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; color: var(--gold-light); flex-wrap: wrap; align-items: center; }
-.stats span { display: inline-flex; align-items: center; gap: 2px; }
-.si { font-size: 14px; color: var(--gold); }
-.lock-tip { font-size: 11px; color: #ff9966; margin-top: 6px; }
+.codex {
+  background: linear-gradient(180deg, #0a0e1a 0%, #12182a 50%, #0a0e1a 100%);
+}
+
+.hd {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.45);
+  border-bottom: 1px solid rgba(212, 164, 55, 0.08);
+}
+
+.back {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hd h1 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+.spacer {
+  width: 38px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+}
+
+.t {
+  flex: 1;
+  text-align: center;
+  padding: 9px 4px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.t.on {
+  background: rgba(212, 164, 55, 0.12);
+  color: var(--gold);
+  border-color: rgba(212, 164, 55, 0.25);
+  border-bottom-color: var(--gold);
+}
+
+/* ── Grid ── */
+.grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  align-content: start;
+}
+
+/* ── Card ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 164, 55, 0.12);
+  border-radius: 14px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.card:active {
+  transform: scale(0.97);
+}
+
+.card.lock {
+  opacity: 0.45;
+}
+
+/* ── Card Image ── */
+.card-img {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.card-img :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+}
+
+.lock-overlay .ms {
+  font-size: 28px;
+  color: rgba(212, 164, 55, 0.5);
+}
+
+/* ── Card Name ── */
+.card-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--gold-light);
+  text-align: center;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+/* ── Card Tags ── */
+.card-tags {
+  margin-bottom: 6px;
+  min-height: 18px;
+  display: flex;
+  justify-content: center;
+}
+
+.badge {
+  font-family: var(--font-body);
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: rgba(46, 125, 91, 0.25);
+  color: #6bff9e;
+}
+
+.badge.boss {
+  background: rgba(139, 0, 0, 0.4);
+  color: #ff8888;
+}
+
+.badge.tier {
+  background: rgba(212, 164, 55, 0.15);
+  color: var(--gold);
+}
+
+/* ── Card Desc ── */
+.card-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+/* ── Card Stats ── */
+.card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--gold-light);
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  color: var(--gold);
+}
+
+.si {
+  font-size: 13px;
+  color: var(--gold);
+}
+
+/* ── Lock Tip ── */
+.lock-tip {
+  font-size: 10px;
+  color: #ff9966;
+  margin-top: 5px;
+  text-align: center;
+}
 </style>

@@ -87,7 +87,7 @@ function viewRegion(region: WorldRegion) {
 // 出兵攻占
 function attackRegion(region: WorldRegion) {
   if (!canAttack(region)) return
-  region.owner = store.user?.name
+  region.owner = store.user?.name || null
   selectedRegion.value = { ...region }
 }
 

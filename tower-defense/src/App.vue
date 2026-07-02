@@ -35,5 +35,6 @@ const current = computed(() => store.screen)
     <ProfileScreen :class="{ active: current === 'profile' }" />
     <MineScreen :class="{ active: current === 'mine' }" />
     <GachaScreen :class="{ active: current === 'gacha' }" />
+    <WorldScreen :class="{ active: current === 'world' }" />
   </div>
 </template>
