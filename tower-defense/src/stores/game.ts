@@ -6,6 +6,7 @@ import { ITEMS, ItemDef } from '../data/loot'
 export type ScreenName =
   | 'splash' | 'auth' | 'main' | 'commander' | 'codex'
   | 'levels' | 'battle' | 'result' | 'exchange' | 'trade'
+  | 'profile' | 'mine' | 'gacha' | 'world' | 'pvp' | 'alliance'
 
 export const useGameStore = defineStore('game', () => {
   const screen = ref<ScreenName>('splash')
@@ -22,6 +23,35 @@ export const useGameStore = defineStore('game', () => {
   const inventory = ref<Record<string, number>>({})
   // 最近一次掉落提示队列（战斗中展示）
   const lootToast = ref<{ id: string; name: string; icon: string; rarity: string; t: number } | null>(null)
+
+  // === 音乐开关 ===
+  const musicOn = ref(true)
+
+  // === 好友系统 ===
+  const friends = ref<{ name: string; code: string; addedAt: number }[]>([])
+  const myInviteCode = ref('')
+
+  // === 用户交易商品 ===
+  interface UserProduct { id: string; name: string; icon: string; price: number; seller: string; desc: string }
+  const userProducts = ref<UserProduct[]>([])
+
+  // === 挖矿系统 ===
+  interface MineDevice { id: string; name: string; icon: string; level: number; hashRate: number; cost: number; owned: number }
+  const mineDevices = ref<MineDevice[]>([
+    { id: 'pick', name: '铁镐', icon: 'hardware', level: 1, hashRate: 10, cost: 500, owned: 0 },
+    { id: 'rig', name: '矿机', icon: 'precision_manufacturing', level: 2, hashRate: 50, cost: 2000, owned: 0 },
+    { id: 'farm', name: '矿场', icon: 'domain', level: 3, hashRate: 200, cost: 8000, owned: 0 },
+    { id: 'factory', name: '兵工厂', icon: 'factory', level: 4, hashRate: 800, cost: 30000, owned: 0 },
+    { id: 'dragon', name: '龙脉矿', icon: 'auto_awesome', level: 5, hashRate: 3000, cost: 120000, owned: 0 },
+  ])
+  const totalHashRate = computed(() => mineDevices.value.reduce((s, d) => s + d.hashRate * d.owned, 0))
+  const mineLog = ref<{ time: number; hash: string; amount: number }[]>([])
+  const mineEarnings = ref(0) // 今日累计收益
+
+  // === 武将孵化池 ===
+  interface GachaHero { id: string; name: string; icon: string; rarity: string; atk: number; def: number }
+  const ownedHeroes = ref<GachaHero[]>([])
+  const gachaCost = ref(300) // 单抽 300 金币
 
   const rankIndex = computed(() => rankByClears(totalClears.value))
   const rank = computed(() => RANKS[rankIndex.value])
@@ -86,11 +116,102 @@ export const useGameStore = defineStore('game', () => {
   }
   function clearLootToast() { lootToast.value = null }
 
+  // === 音乐 ===
+  function toggleMusic() { musicOn.value = !musicOn.value }
+
+  // === 好友 ===
+  function genInviteCode() { myInviteCode.value = 'FH' + Math.random().toString(36).slice(2, 8).toUpperCase() }
+  function addFriend(name: string, code: string) {
+    if (friends.value.find(f => f.code === code)) return false
+    friends.value.push({ name, code, addedAt: Date.now() })
+    return true
+  }
+
+  // === 用户交易 ===
+  function addUserProduct(name: string, price: number, icon: string, desc: string) {
+    const id = 'up_' + Date.now()
+    userProducts.value.push({ id, name, icon, price, seller: user.value?.name || '未知', desc })
+  }
+  function removeUserProduct(id: string) {
+    userProducts.value = userProducts.value.filter(p => p.id !== id)
+  }
+
+  // === 挖矿 ===
+  function buyMineDevice(deviceId: string) {
+    const d = mineDevices.value.find(x => x.id === deviceId)
+    if (!d || gold.value < d.cost) return false
+    gold.value -= d.cost
+    d.owned++
+    return true
+  }
+  // 随机生成哈希值
+  function genHash(): string {
+    return '0x' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
+  }
+  // 挖矿收益（每秒根据哈希率产出）
+  function mineTick() {
+    if (totalHashRate.value <= 0) return
+    const amount = Math.floor(totalHashRate.value * (0.8 + Math.random() * 0.4))
+    mineEarnings.value += amount
+    gold.value += amount
+    mineLog.value.unshift({ time: Date.now(), hash: genHash(), amount })
+    if (mineLog.value.length > 50) mineLog.value.length = 50
+  }
+  function resetDailyEarnings() { mineEarnings.value = 0 }
+
+  // === 武将孵化 ===
+  function gachaPull(): GachaHero | null {
+    if (gold.value < gachaCost.value) return null
+    gold.value -= gachaCost.value
+    const roll = Math.random()
+    let rarity: string, pool: { id: string; name: string; icon: string; atk: number; def: number }[]
+    if (roll < 0.02) { rarity = 'legendary'; pool = GA_POOL.legendary }
+    else if (roll < 0.1) { rarity = 'epic'; pool = GA_POOL.epic }
+    else if (roll < 0.35) { rarity = 'rare'; pool = GA_POOL.rare }
+    else { rarity = 'common'; pool = GA_POOL.common }
+    const hero = pool[Math.floor(Math.random() * pool.length)]
+    const h = { ...hero, rarity }
+    ownedHeroes.value.push(h)
+    return h
+  }
+
   return {
     screen, user, gold, cash, totalClears, levelStars, lastResult,
     currentLevelId, signDay, signedToday, inventory, lootToast,
     rankIndex, rank, nextRank, inventoryList, inventoryValue,
+    musicOn, friends, myInviteCode, userProducts,
+    mineDevices, totalHashRate, mineLog, mineEarnings,
+    ownedHeroes, gachaCost,
     go, login, addGold, recordResult, exchange,
     addLoot, sellItem, buyItem, clearLootToast,
+    toggleMusic, genInviteCode, addFriend,
+    addUserProduct, removeUserProduct,
+    buyMineDevice, mineTick, resetDailyEarnings,
+    gachaPull,
   }
 })
+
+// === 武将孵化池数据 ===
+const GA_POOL = {
+  common: [
+    { id: 'gc1', name: '步卒', icon: 'person', atk: 10, def: 8 },
+    { id: 'gc2', name: '弓手', icon: 'north_east', atk: 14, def: 5 },
+    { id: 'gc3', name: '枪兵', icon: 'arrow_forward', atk: 12, def: 10 },
+    { id: 'gc4', name: '斥候', icon: 'directions_run', atk: 8, def: 6 },
+  ],
+  rare: [
+    { id: 'gr1', name: '校刀手', icon: 'hardware', atk: 22, def: 16 },
+    { id: 'gr2', name: '弩手', icon: 'gps_fixed', atk: 26, def: 10 },
+    { id: 'gr3', name: '铁骑', icon: 'directions_horse', atk: 28, def: 18 },
+  ],
+  epic: [
+    { id: 'ge1', name: '虎贲卫', icon: 'shield', atk: 40, def: 35 },
+    { id: 'ge2', name: '神射手', icon: 'my_location', atk: 48, def: 20 },
+    { id: 'ge3', name: '陷阵营', icon: 'fitness_center', atk: 52, def: 40 },
+  ],
+  legendary: [
+    { id: 'gl1', name: '吕布', icon: 'crown', atk: 90, def: 60 },
+    { id: 'gl2', name: '赵云', icon: 'star', atk: 85, def: 75 },
+    { id: 'gl3', name: '诸葛亮', icon: 'psychology', atk: 70, def: 80 },
+  ],
+}

@@ -11,6 +11,10 @@ import BattleScreen from './components/BattleScreen.vue'
 import ResultScreen from './components/ResultScreen.vue'
 import ExchangeScreen from './components/ExchangeScreen.vue'
 import TradeScreen from './components/TradeScreen.vue'
+import ProfileScreen from './components/ProfileScreen.vue'
+import MineScreen from './components/MineScreen.vue'
+import GachaScreen from './components/GachaScreen.vue'
+import WorldScreen from './components/WorldScreen.vue'
 
 const store = useGameStore()
 const current = computed(() => store.screen)
@@ -28,5 +32,8 @@ const current = computed(() => store.screen)
     <ResultScreen :class="{ active: current === 'result' }" />
     <ExchangeScreen :class="{ active: current === 'exchange' }" />
     <TradeScreen :class="{ active: current === 'trade' }" />
+    <ProfileScreen :class="{ active: current === 'profile' }" />
+    <MineScreen :class="{ active: current === 'mine' }" />
+    <GachaScreen :class="{ active: current === 'gacha' }" />
   </div>
 </template>

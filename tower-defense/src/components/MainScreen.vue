@@ -31,6 +31,7 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
         <div class="chip cash-chip"><span class="dot c"></span>¥{{ store.cash.toFixed(2) }}</div>
       </div>
       <div class="top-actions">
+        <button class="ic-btn" @click="store.go('profile')" title="个人中心"><span class="ms">person</span></button>
         <button class="ic-btn" @click="store.go('trade')" title="集市交易"><span class="ms">storefront</span></button>
         <button class="ic-btn" @click="store.go('exchange')" title="兑换现金"><span class="ms">payments</span></button>
       </div>
@@ -74,6 +75,18 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
       </div>
       <div class="entry" @click="store.go('trade')">
         <div class="e-ico"><span class="ms">storefront</span></div><div class="e-t">集市交易</div>
+      </div>
+      <div class="entry" @click="store.go('gacha')">
+        <div class="e-ico"><span class="ms">auto_awesome</span></div><div class="e-t">武将孵化</div>
+      </div>
+      <div class="entry" @click="store.go('mine')">
+        <div class="e-ico"><span class="ms">diamond</span></div><div class="e-t">挖矿工坊</div>
+      </div>
+      <div class="entry" @click="store.go('profile')">
+        <div class="e-ico"><span class="ms">group</span></div><div class="e-t">好友联盟</div>
+      </div>
+      <div class="entry" @click="store.toggleMusic()">
+        <div class="e-ico"><span class="ms">{{ store.musicOn ? 'music_note' : 'music_off' }}</span></div><div class="e-t">{{ store.musicOn ? '音乐开' : '音乐关' }}</div>
       </div>
     </div>
   </section>
