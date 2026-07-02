@@ -39,6 +39,8 @@ const hud = reactive({
 // 战利品掉落浮动提示队列
 const lootToasts = ref<{ id: number; name: string; icon: string; rarity: Rarity; color: string }[]>([])
 let lootSeq = 0
+// 自由放置提示
+const placeHint = ref(false)
 
 const cfg: BattleConfig = {
   level,
@@ -94,7 +96,15 @@ const availableUnits = UNITS.filter(u => store.rankIndex + 1 >= u.unlockRank)
 
 function build(kind: TowerKind) {
   const scene = game?.scene.getScene('battle') as any
-  scene?.buildTower?.(kind)
+  // 自由放置：进入建造模式，提示玩家点击地图选择位置
+  if (scene?.startPlacement?.(kind)) {
+    audio.uiClick()
+    // 显示提示：点击地图任意位置建造
+    placeHint.value = true
+    setTimeout(() => { placeHint.value = false }, 3000)
+  } else {
+    audio.uiBack()
+  }
 }
 function deploy(unitId: string) {
   const scene = game?.scene.getScene('battle') as any
@@ -144,6 +154,12 @@ const showTowerPanel = () => hud.selTowerKind !== null
   <section class="screen battle">
     <!-- Phaser 游戏画布宿主 -->
     <div class="host" ref="phaserHost"></div>
+
+    <!-- 自由放置提示 -->
+    <div class="place-hint" v-if="placeHint">
+      <span class="ms">touch_app</span>
+      <span>点击地图任意空地放置防御塔</span>
+    </div>
 
     <!-- 顶部 HUD -->
     <div class="top-hud">
@@ -235,6 +251,10 @@ const showTowerPanel = () => hud.selTowerKind !== null
 <style scoped>
 .battle { background: #0a0a14; }
 .host { position: absolute; inset: 0; }
+/* 自由放置提示 */
+.place-hint { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); z-index: 14; display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(212,164,55,0.95); color: var(--ink); border-radius: 20px; font-size: 13px; font-weight: 700; font-family: var(--font-body); box-shadow: 0 4px 14px rgba(212,164,55,0.5); animation: placePulse 0.8s ease-in-out infinite alternate; }
+.place-hint .ms { font-size: 18px; }
+@keyframes placePulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.05); } }
 .host :deep(canvas) { display: block; width: 100% !important; height: 100% !important; }
 
 .top-hud { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }

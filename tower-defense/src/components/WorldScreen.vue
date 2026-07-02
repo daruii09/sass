@@ -108,6 +108,28 @@ function startPlunder(region: WorldRegion) {
   }, 1000)
 }
 
+// 加速令：消耗1个加速令，立即完成掠夺
+function useSpeedToken() {
+  if (!plundering.value || !plunderTarget.value) return
+  if (!store.useSpeedToken()) {
+    // 没有加速令，提示购买
+    if (store.buySpeedToken(1)) {
+      store.useSpeedToken()
+    } else {
+      return
+    }
+  }
+  const region = WORLD_MAP.find(r => r.id === plunderTarget.value)
+  if (region) completePlunder(region)
+}
+
+// 购买加速令
+function buyToken() {
+  if (store.buySpeedToken(1)) {
+    // 购买成功
+  }
+}
+
 function completePlunder(region: WorldRegion) {
   if (plunderTimer) {
     clearInterval(plunderTimer)
@@ -261,7 +283,12 @@ onUnmounted(() => {
             <div class="progress-bar-wrap">
               <div class="progress-bar" :style="{ width: plunderProgress + '%' }"></div>
             </div>
-            <div class="progress-pct">{{ plunderProgress }}%</div>
+            <div class="progress-row">
+              <div class="progress-pct">{{ plunderProgress }}%</div>
+              <button class="speed-btn" @click="useSpeedToken">
+                <span class="ms">bolt</span>加速令({{ store.speedTokens }})
+              </button>
+            </div>
           </div>
 
           <button
@@ -718,6 +745,10 @@ onUnmounted(() => {
   font-family: var(--font-num); font-size: 14px;
   color: var(--gold); text-align: center; font-weight: 700;
 }
+.progress-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.speed-btn { display: flex; align-items: center; gap: 4px; padding: 5px 10px; background: linear-gradient(135deg, #d4a437, #8b6914); color: var(--ink); border: 1px solid var(--gold-light); border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 0 8px rgba(212,164,55,0.5); animation: speedPulse 1.2s ease-in-out infinite alternate; }
+.speed-btn .ms { font-size: 14px; }
+@keyframes speedPulse { from { box-shadow: 0 0 8px rgba(212,164,55,0.5); } to { box-shadow: 0 0 16px rgba(212,164,55,0.9); } }
 
 /* === 底部统计栏 === */
 .stats-bar {

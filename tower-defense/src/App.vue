@@ -15,6 +15,8 @@ import ProfileScreen from './components/ProfileScreen.vue'
 import MineScreen from './components/MineScreen.vue'
 import GachaScreen from './components/GachaScreen.vue'
 import WorldScreen from './components/WorldScreen.vue'
+import PvpScreen from './components/PvpScreen.vue'
+import AllianceScreen from './components/AllianceScreen.vue'
 
 const store = useGameStore()
 const current = computed(() => store.screen)
@@ -36,5 +38,7 @@ const current = computed(() => store.screen)
     <MineScreen :class="{ active: current === 'mine' }" />
     <GachaScreen :class="{ active: current === 'gacha' }" />
     <WorldScreen :class="{ active: current === 'world' }" />
+    <PvpScreen :class="{ active: current === 'pvp' }" />
+    <AllianceScreen :class="{ active: current === 'alliance' }" />
   </div>
 </template>

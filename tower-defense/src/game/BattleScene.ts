@@ -62,6 +62,7 @@ export class BattleScene extends Phaser.Scene {
   kills = 0
   selectedSlot = -1
   selectedTower = -1
+  pendingTowerKind: TowerKind | null = null  // 自由放置：待建造的塔类型
   speedMul = 1
   skillCds: Record<string, number> = {}
   moraleBuff = 0
@@ -154,13 +155,30 @@ export class BattleScene extends Phaser.Scene {
     this.tweens.add({ targets: castle, scaleX: 1.02, scaleY: 1.02, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.inOut' })
 
     this.slots = new SlotManager(this, this.path, w, h)
-    this.slots.slots.forEach((s, i) => {
-      const ring = this.add.circle(s.x, s.y, 22, 0xd4a437, 0.12).setStrokeStyle(2, 0xd4a437, 0.7).setDepth(s.y)
-      const plus = this.add.text(s.x, s.y, '＋', { fontSize: '22px', color: '#F5E6A8' }).setOrigin(0.5).setDepth(s.y + 1)
-      s.marker = this.add.container(0, 0, [ring, plus])
-      ring.setInteractive({ useHandCursor: true })
-      ring.on('pointerdown', () => this.selectSlot(i))
-      this.tweens.add({ targets: [ring, plus], alpha: { from: 0.5, to: 1 }, duration: 900, yoyo: true, repeat: -1 })
+
+    // 自由放置模式：监听整个游戏区域的点击，玩家可在任意空地放置防御塔
+    // 当处于"建造模式"（pendingTowerKind 不为空）时，点击地图即在该位置建造
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (!this.pendingTowerKind) return
+      // 仅在游戏区域内（非 UI）
+      if (pointer.y < 80 || pointer.y > h - 100) return
+      const slot = this.slots.createFreeSlot(pointer.x, pointer.y)
+      if (!slot) {
+        // 不可建造：红色提示
+        this.effects.floatText(pointer.x, pointer.y, '此处不可建造', '#FF6666', '13px')
+        audio.uiBack()
+        return
+      }
+      // 在该位置显示建造预览圈
+      const preview = this.add.circle(slot.x, slot.y, 22, 0xd4a437, 0.2).setStrokeStyle(2, 0xd4a437, 0.9).setDepth(slot.y)
+      this.tweens.add({ targets: preview, alpha: 0, duration: 400, onComplete: () => preview.destroy() })
+      // 选中该自由塔位
+      this.selectedSlot = this.slots.slots.indexOf(slot)
+      this.cb.onSelectSlot(this.selectedSlot)
+      // 立即尝试建造
+      this.buildTower(this.pendingTowerKind)
+      this.pendingTowerKind = null
+      this.cb.onSelectSlot(null)
     })
 
     ;(this as any).__ENEMIES__ = this.enemies
@@ -191,6 +209,16 @@ export class BattleScene extends Phaser.Scene {
     audio.uiClick()
   }
 
+  // 自由放置：进入建造模式，等待玩家点击地图选择位置
+  startPlacement(kind: TowerKind): boolean {
+    const def = TOWERS[kind]
+    const cost = def.tiers[0].cost
+    if (this.grain < cost) return false
+    if (this.cfg.rankIndex + 1 < def.unlockRank) return false
+    this.pendingTowerKind = kind
+    return true
+  }
+
   buildTower(kind: TowerKind): boolean {
     if (this.selectedSlot < 0) return false
     const slot = this.slots.slots[this.selectedSlot]
@@ -203,8 +231,7 @@ export class BattleScene extends Phaser.Scene {
     const unitDef = def.soldierId ? unitById(def.soldierId) : undefined
     const tower = new Tower(this, def, slot.x, slot.y, unitDef, this.effects, this.projKeys)
     this.towers.push(tower)
-    slot.occupied = true
-    if (slot.marker) slot.marker.destroy()
+    this.slots.occupy(slot)
     this.selectedSlot = -1
     this.cb.onSelectSlot(null)
     this.cb.onGrain(this.grain)

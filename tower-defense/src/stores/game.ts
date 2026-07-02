@@ -53,9 +53,32 @@ export const useGameStore = defineStore('game', () => {
   const ownedHeroes = ref<GachaHero[]>([])
   const gachaCost = ref(300) // 单抽 300 金币
 
+  // === PvP 对战 ===
+  // PvP 需军阶 >= 3 才开放（pvpUnlock 在 rankIndex 定义后声明）
+  const PVP_UNLOCK_RANK = 3
+  const pvpRank = ref(1000)  // ELO 积分
+  const pvpWins = ref(0)
+  const pvpLoses = ref(0)
+  const pvpHistory = ref<{ time: number; opp: string; result: 'win'|'lose'; delta: number }[]>([])
+  const matching = ref(false)
+  const matchProgress = ref(0)
+
+  // === 结盟系统 ===
+  // 结盟需军阶 >= 4 才开放（allianceUnlock 在 rankIndex 定义后声明）
+  const ALLIANCE_UNLOCK_RANK = 4
+  interface Alliance { id: string; name: string; members: string[]; leader: string; createdAt: number }
+  const myAlliance = ref<Alliance | null>(null)
+  const allianceInvites = ref<{ from: string; allianceName: string; t: number }[]>([])
+
+  // === 掠夺加速令 ===
+  const speedTokens = ref(0)  // 加速令数量
+  const garrison = ref<Record<string, number>>({})  // 城池驻兵 {regionId: count}
+
   const rankIndex = computed(() => rankByClears(totalClears.value))
   const rank = computed(() => RANKS[rankIndex.value])
   const nextRank = computed(() => RANKS[rankIndex.value + 1] || null)
+  const pvpUnlock = computed(() => rankIndex.value + 1 >= PVP_UNLOCK_RANK)
+  const allianceUnlock = computed(() => rankIndex.value + 1 >= ALLIANCE_UNLOCK_RANK)
 
   // 背包物品列表（带数量与定义）
   const inventoryList = computed(() => {
@@ -175,6 +198,68 @@ export const useGameStore = defineStore('game', () => {
     return h
   }
 
+  // === PvP 对战 ===
+  const OPP_NAMES = ['破阵子', '铁血侯', '镇北王', '平南将', '征西大将军', '靖海伯', '安西都护', '骁骑营']
+  function startMatch() {
+    if (!pvpUnlock.value || matching.value) return
+    matching.value = true
+    matchProgress.value = 0
+  }
+  // 模拟匹配完成：返回对手信息
+  function finishMatch(): { opp: string; oppRank: number; oppPower: number } {
+    matching.value = false
+    const opp = OPP_NAMES[Math.floor(Math.random() * OPP_NAMES.length)]
+    const oppRank = pvpRank.value + Math.floor((Math.random() - 0.5) * 200)
+    const oppPower = 500 + Math.floor(Math.random() * 1500)
+    return { opp, oppRank, oppPower }
+  }
+  // 结算对战
+  function settlePvp(opp: string, win: boolean) {
+    const delta = win ? 20 + Math.floor(Math.random() * 30) : -(15 + Math.floor(Math.random() * 25))
+    pvpRank.value = Math.max(0, pvpRank.value + delta)
+    if (win) { pvpWins.value++; addGold(200 + Math.floor(Math.random() * 300)) }
+    else pvpLoses.value++
+    pvpHistory.value.unshift({ time: Date.now(), opp, result: win ? 'win' : 'lose', delta })
+    if (pvpHistory.value.length > 20) pvpHistory.value.length = 20
+  }
+
+  // === 结盟 ===
+  function createAlliance(name: string) {
+    if (!allianceUnlock.value || myAlliance.value) return false
+    myAlliance.value = { id: 'al_' + Date.now(), name, members: [user.value?.name || '主帅'], leader: user.value?.name || '主帅', createdAt: Date.now() }
+    return true
+  }
+  function leaveAlliance() { myAlliance.value = null }
+  function inviteToAlliance(playerName: string) {
+    if (!myAlliance.value) return false
+    if (myAlliance.value.members.length >= 3) return false  // 最多三方结盟
+    if (myAlliance.value.members.includes(playerName)) return false
+    myAlliance.value.members.push(playerName)
+    return true
+  }
+  // 判断某玩家是否为盟友
+  function isAlly(playerName: string): boolean {
+    return !!myAlliance.value && myAlliance.value.members.includes(playerName)
+  }
+
+  // === 加速令 ===
+  function buySpeedToken(count = 1) {
+    const cost = 200 * count
+    if (gold.value < cost) return false
+    gold.value -= cost
+    speedTokens.value += count
+    return true
+  }
+  function useSpeedToken(): boolean {
+    if (speedTokens.value <= 0) return false
+    speedTokens.value--
+    return true
+  }
+  // 驻兵
+  function deployGarrison(regionId: string, count: number) {
+    garrison.value[regionId] = (garrison.value[regionId] || 0) + count
+  }
+
   return {
     screen, user, gold, cash, totalClears, levelStars, lastResult,
     currentLevelId, signDay, signedToday, inventory, lootToast,
@@ -182,12 +267,18 @@ export const useGameStore = defineStore('game', () => {
     musicOn, friends, myInviteCode, userProducts,
     mineDevices, totalHashRate, mineLog, mineEarnings,
     ownedHeroes, gachaCost,
+    pvpUnlock, pvpRank, pvpWins, pvpLoses, pvpHistory, matching, matchProgress,
+    allianceUnlock, myAlliance, allianceInvites,
+    speedTokens, garrison,
     go, login, addGold, recordResult, exchange,
     addLoot, sellItem, buyItem, clearLootToast,
     toggleMusic, genInviteCode, addFriend,
     addUserProduct, removeUserProduct,
     buyMineDevice, mineTick, resetDailyEarnings,
     gachaPull,
+    startMatch, finishMatch, settlePvp,
+    createAlliance, leaveAlliance, inviteToAlliance, isAlly,
+    buySpeedToken, useSpeedToken, deployGarrison,
   }
 })
 

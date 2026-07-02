@@ -73,6 +73,12 @@ const rankIcon = RANK_ICON[store.rankIndex] || 'person'
       <div class="entry" @click="store.go('world')">
         <div class="e-ico"><span class="ms">public</span></div><div class="e-t">天下大势</div>
       </div>
+      <div class="entry" @click="store.go('pvp')">
+        <div class="e-ico"><span class="ms">sword_cross</span></div><div class="e-t">实时对战</div>
+      </div>
+      <div class="entry" @click="store.go('alliance')">
+        <div class="e-ico"><span class="ms">handshake</span></div><div class="e-t">结盟系统</div>
+      </div>
       <div class="entry" @click="store.go('profile')">
         <div class="e-ico"><span class="ms">group</span></div><div class="e-t">好友联盟</div>
       </div>
