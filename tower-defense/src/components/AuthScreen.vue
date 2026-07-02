@@ -189,7 +189,10 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
   height: 100%;
   object-fit: contain;
   object-position: bottom center;
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45));
+  /* 提升清晰度：高质量缩放 + 锐化滤镜 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)) contrast(1.06) saturate(1.08);
   user-select: none;
   -webkit-user-drag: none;
   transform-origin: 50% 96%;   /* 支点在脚底，晃动时如坐姿摆腿带动全身 */
