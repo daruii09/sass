@@ -65,15 +65,10 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
     </div>
 
     <div class="panel">
-      <!-- 女性古装人物：透明背景 PNG，坐在登录卡片左侧上方，裙摆/腿部摆动 -->
+      <!-- 女性古装人物：透明背景 PNG，坐在登录卡片左侧上方，全身自然晃动 -->
       <div class="heroine">
         <div class="h-glow"></div>
-        <div class="heroine-body">
-          <!-- 上半身（头+躯干，静态） -->
-          <img src="/heroine/heroine.png" alt="古装女子" class="heroine-img heroine-upper" />
-          <!-- 下半身（裙摆+腿，摆动） -->
-          <img src="/heroine/heroine.png" alt="" aria-hidden="true" class="heroine-img heroine-legs" />
-        </div>
+        <img src="/heroine/heroine.png" alt="古装女子" class="heroine-img" />
         <!-- 飘落花瓣点缀 -->
         <div class="petal" v-for="i in 5" :key="i" :style="{ left: (10+i*18)+'%', animationDelay: (i*1.3)+'s', animationDuration: (7+i%3)+'s' }"></div>
       </div>
@@ -168,7 +163,7 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
 }
 @keyframes flagFall { 0% { transform: translateY(-40px) rotate(-10deg); opacity: 0; } 10% { opacity: 0.6; } 100% { transform: translateY(720px) rotate(20deg); opacity: 0; } }
 
-/* === 女性古装人物（透明背景 PNG，坐在登录卡片左侧，裙摆/腿部摆动） === */
+/* === 女性古装人物（透明背景 PNG，坐在登录卡片左侧，全身自然晃动） === */
 /* 放在 panel 内部，相对 panel 定位，确保人物"坐"在登录框左侧上沿 */
 .heroine {
   position: absolute;
@@ -186,16 +181,7 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
   pointer-events: none;
 }
 @keyframes aura { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
-/* 人物主体容器：承载双层图片 */
-.heroine-body {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  animation: heroineBreathe 4s ease-in-out infinite;
-  transform-origin: 50% 100%;
-}
-@keyframes heroineBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.015); } }
-/* 双层图片：同一张 PNG，分别裁剪上半身与下半身 */
+/* 单张人物图片：以脚底为支点做复合自然晃动（轻微旋转 + 摆动 + 呼吸），不切割图片 */
 .heroine-img {
   position: absolute;
   inset: 0;
@@ -206,20 +192,16 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
   filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45));
   user-select: none;
   -webkit-user-drag: none;
+  transform-origin: 50% 96%;   /* 支点在脚底，晃动时如坐姿摆腿带动全身 */
+  animation: heroineSway 3.4s ease-in-out infinite;
 }
-/* 上半身（头+躯干，到髋部 58%）：保持静止 */
-.heroine-upper {
-  clip-path: inset(0 0 42% 0);   /* 显示顶部 58% */
-}
-/* 下半身（裙摆+腿，从 56% 起）：摆动动画 */
-.heroine-legs {
-  clip-path: inset(56% 0 0 0);   /* 显示底部 44%，与上半身有 2% 重叠避免缝隙 */
-  transform-origin: 50% 58%;     /* 旋转中心 = 髋部 */
-  animation: legSway 1.8s ease-in-out infinite;
-}
-@keyframes legSway {
-  0%, 100% { transform: rotate(-4deg) translateX(-1.5px); }
-  50%      { transform: rotate(4deg)  translateX(1.5px); }
+/* 复合动画：以脚为支点的轻微左右摆动 + 扭转 + 呼吸缩放，模拟人物自然晃动（非图片切割移动） */
+@keyframes heroineSway {
+  0%   { transform: rotate(-1.2deg) skewX(-0.6deg) translateX(-1px)  scale(1); }
+  25%  { transform: rotate(0.6deg)  skewX(0.3deg)  translateX(0.5px) scale(1.008); }
+  50%  { transform: rotate(1.2deg)  skewX(0.6deg)  translateX(1px)   scale(1); }
+  75%  { transform: rotate(0.4deg)  skewX(0.2deg)  translateX(0.5px) scale(1.008); }
+  100% { transform: rotate(-1.2deg) skewX(-0.6deg) translateX(-1px)  scale(1); }
 }
 
 /* 飘落花瓣点缀 */
