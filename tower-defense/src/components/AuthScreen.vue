@@ -64,15 +64,19 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
       <div class="flag" v-for="i in 5" :key="i" :style="{ left: (8+i*19)+'%', animationDelay: (i*0.7)+'s' }">令</div>
     </div>
 
-    <!-- 女性古装人物：透明背景 PNG，坐在登录卡片上方，无卡片容器 -->
-    <div class="heroine">
-      <div class="h-glow"></div>
-      <img src="/heroine/heroine.png" alt="古装女子" class="heroine-img" />
-      <!-- 飘落花瓣点缀 -->
-      <div class="petal" v-for="i in 5" :key="i" :style="{ left: (10+i*18)+'%', animationDelay: (i*1.3)+'s', animationDuration: (7+i%3)+'s' }"></div>
-    </div>
-
     <div class="panel">
+      <!-- 女性古装人物：透明背景 PNG，坐在登录卡片左侧上方，裙摆/腿部摆动 -->
+      <div class="heroine">
+        <div class="h-glow"></div>
+        <div class="heroine-body">
+          <!-- 上半身（头+躯干，静态） -->
+          <img src="/heroine/heroine.png" alt="古装女子" class="heroine-img heroine-upper" />
+          <!-- 下半身（裙摆+腿，摆动） -->
+          <img src="/heroine/heroine.png" alt="" aria-hidden="true" class="heroine-img heroine-legs" />
+        </div>
+        <!-- 飘落花瓣点缀 -->
+        <div class="petal" v-for="i in 5" :key="i" :style="{ left: (10+i*18)+'%', animationDelay: (i*1.3)+'s', animationDuration: (7+i%3)+'s' }"></div>
+      </div>
       <div class="brand">
         <div class="seal"><span>帥</span></div>
         <h1>烽火主帅</h1>
@@ -164,36 +168,59 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
 }
 @keyframes flagFall { 0% { transform: translateY(-40px) rotate(-10deg); opacity: 0; } 10% { opacity: 0.6; } 100% { transform: translateY(720px) rotate(20deg); opacity: 0; } }
 
-/* === 女性古装人物（透明背景 PNG，无卡片容器，坐在登录卡片上方） === */
+/* === 女性古装人物（透明背景 PNG，坐在登录卡片左侧，裙摆/腿部摆动） === */
+/* 放在 panel 内部，相对 panel 定位，确保人物"坐"在登录框左侧上沿 */
 .heroine {
   position: absolute;
-  top: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 220px;
-  height: 300px;
-  z-index: 5;                 /* 高于 panel，确保人物无遮挡显示 */
-  pointer-events: none;       /* 不阻挡登录卡片交互 */
+  top: -150px;            /* 人物顶部在 panel 上方 150px，让人物"坐"在框上 */
+  left: -72px;            /* 偏左，人物右侧只覆盖 panel 左侧边缘，不挡文字 */
+  width: 180px;
+  height: 270px;
+  z-index: 6;             /* 高于 panel 内容，无遮挡显示 */
+  pointer-events: none;   /* 不阻挡登录卡片交互 */
 }
 .h-glow {
-  position: absolute; inset: -10px -20px 30px;
-  background: radial-gradient(ellipse at 50% 40%, rgba(255,200,220,0.22), transparent 65%);
+  position: absolute; inset: -10px -16px 24px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,200,220,0.22), transparent 65%);
   animation: aura 4s ease-in-out infinite;
   pointer-events: none;
 }
-@keyframes aura { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
-.heroine-img {
+@keyframes aura { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+/* 人物主体容器：承载双层图片 */
+.heroine-body {
   position: relative;
+  width: 100%;
+  height: 100%;
+  animation: heroineBreathe 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes heroineBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.015); } }
+/* 双层图片：同一张 PNG，分别裁剪上半身与下半身 */
+.heroine-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: bottom center;
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.45));
-  animation: heroineBreathe 4s ease-in-out infinite;
-  transform-origin: 50% 100%;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.45));
+  user-select: none;
+  -webkit-user-drag: none;
 }
-/* 轻微呼吸缩放（非整体上下浮动） */
-@keyframes heroineBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.015); } }
+/* 上半身（头+躯干，到髋部 58%）：保持静止 */
+.heroine-upper {
+  clip-path: inset(0 0 42% 0);   /* 显示顶部 58% */
+}
+/* 下半身（裙摆+腿，从 56% 起）：摆动动画 */
+.heroine-legs {
+  clip-path: inset(56% 0 0 0);   /* 显示底部 44%，与上半身有 2% 重叠避免缝隙 */
+  transform-origin: 50% 58%;     /* 旋转中心 = 髋部 */
+  animation: legSway 1.8s ease-in-out infinite;
+}
+@keyframes legSway {
+  0%, 100% { transform: rotate(-4deg) translateX(-1.5px); }
+  50%      { transform: rotate(4deg)  translateX(1.5px); }
+}
 
 /* 飘落花瓣点缀 */
 .petal {
@@ -207,7 +234,7 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
 @keyframes petalFall { 0% { transform: translateY(-20px) rotate(0); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.6; } 100% { transform: translateY(320px) rotate(360deg); opacity: 0; } }
 
 /* === 登录面板 === */
-.panel { position: relative; z-index: 4; width: 86%; max-width: 340px; background: rgba(24,14,24,0.82); backdrop-filter: blur(16px); border: 2px solid rgba(212,164,55,0.4); border-radius: 24px; padding: 22px 20px 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 6px rgba(212,164,55,0.06); animation: panelIn .5s cubic-bezier(.2,1.4,.4,1) backwards; margin-top: 90px; }
+.panel { position: relative; z-index: 4; width: 86%; max-width: 340px; background: rgba(24,14,24,0.82); backdrop-filter: blur(16px); border: 2px solid rgba(212,164,55,0.4); border-radius: 24px; padding: 22px 20px 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 6px rgba(212,164,55,0.06); animation: panelIn .5s cubic-bezier(.2,1.4,.4,1) backwards; margin-top: 170px; overflow: visible; }
 @keyframes panelIn { from { transform: translateY(30px) scale(0.92); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
 .brand { text-align: center; margin-bottom: 18px; }
