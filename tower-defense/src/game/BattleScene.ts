@@ -9,6 +9,8 @@ import { Projectile } from './Projectile'
 import { Effects } from './Effects'
 import { audio } from './audio'
 import { voice } from './voice'
+import { ensureFallbackTexture } from './fallback'
+import { rollLoot } from '../data/loot'
 import { LevelDef } from '../data/levels'
 import { ENEMIES } from '../data/enemies'
 import { TOWERS, TowerKind } from '../data/towers'
@@ -37,6 +39,7 @@ export interface BattleCallbacks {
   onSelectTower: (towerIdx: number | null, kind: TowerKind | null, tier: number, canUp: boolean, upCost: number) => void
   onSpeed: (mul: number) => void
   onSkillReady: (skillId: string, ready: boolean, cdLeft: number) => void
+  onLoot: (item: { id: string; name: string; icon: string; rarity: string }, x: number, y: number) => void
   onEnd: (r: BattleResult) => void
 }
 
@@ -122,6 +125,20 @@ export class BattleScene extends Phaser.Scene {
   create() {
     const w = this.scale.width, h = this.scale.height
     this.effects = new Effects(this)
+
+    // 兜底：为所有加载失败/缺失的纹理生成 Q 版程序化素材
+    const fbKeys: string[] = ['bg', 'castle', 'camp']
+    Object.values(TOWERS).forEach(t => t.tiers.forEach((_, i) => fbKeys.push(`${t.kind}${i + 1}`)))
+    UNITS.forEach(u => fbKeys.push(u.id))
+    Object.values(ENEMIES).forEach(e => fbKeys.push(e.id))
+    fbKeys.forEach(k => ensureFallbackTexture(this, k))
+    // 箭矢纹理（士兵远程攻击用）
+    if (!this.textures.exists('__arrow__')) {
+      const g = this.make.graphics({ x: 0, y: 0 }, false)
+      g.fillStyle(0xd4a437); g.fillRect(0, 1, 16, 3)
+      g.fillStyle(0x8b6914); g.fillTriangle(16, 0, 16, 6, 22, 3)
+      g.generateTexture('__arrow__', 22, 6); g.destroy()
+    }
 
     const bg = this.add.image(w / 2, h / 2, 'bg').setDisplaySize(w, h).setAlpha(0.92)
     // 暗角
@@ -362,6 +379,14 @@ export class BattleScene extends Phaser.Scene {
           this.grain += Math.floor(e.def.bounty * 0.5)
           this.cb.onGrain(this.grain)
           voice.kill()
+          // 战利品掉落
+          const drops = rollLoot(e.def.id)
+          drops.forEach(it => {
+            const col = it.rarity === 'legendary' ? '#ffb300' : it.rarity === 'epic' ? '#ba68c8' : it.rarity === 'rare' ? '#4fc3f7' : '#9e9e9e'
+            this.effects.floatText(e.sprite.x, e.sprite.y - 36, `[${it.name}]`, col, it.rarity === 'legendary' ? '20px' : '15px')
+            this.effects.hitBurst(e.sprite.x, e.sprite.y, it.rarity === 'legendary' ? 0xffb300 : 0xd4a437)
+            this.cb.onLoot({ id: it.id, name: it.name, icon: it.icon, rarity: it.rarity }, e.sprite.x, e.sprite.y)
+          })
         }
       } else alive.push(e)
     })

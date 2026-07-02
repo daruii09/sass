@@ -36,6 +36,19 @@ export class Effects {
     })
   }
 
+  // 浮动文字（战利品/提示）
+  floatText(x: number, y: number, text: string, color = '#FFDD66', size = '14px') {
+    const txt = this.scene.add.text(x, y, text, {
+      fontFamily: 'ZCOOL XiaoWei', fontSize: size, color,
+      stroke: '#000000', strokeThickness: 3, fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(10001)
+    this.scene.tweens.add({
+      targets: txt, y: y - 40, alpha: 0, scale: 1.2,
+      duration: 1100, ease: 'Back.out',
+      onComplete: () => txt.destroy(),
+    })
+  }
+
   // 死亡消散粒子
   deathBurst(x: number, y: number, color = 0x8B0000) {
     for (let i = 0; i < 14; i++) {

@@ -93,6 +93,9 @@ class AudioEngine {
   }
   uiClick() { this.tone(660, 0.05, 'sine', 0.15) }
   uiBack() { this.tone(330, 0.06, 'sine', 0.15, 220) }
+  coin() { this.tone(988, 0.08, 'sine', 0.25); setTimeout(() => this.tone(1318, 0.12, 'sine', 0.2), 70) }
+  login() { [392, 523, 659].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, 'triangle', 0.22), i * 80)) }
+  loot() { this.tone(880, 0.06, 'sine', 0.2); setTimeout(() => this.tone(1175, 0.08, 'sine', 0.2), 60); setTimeout(() => this.tone(1568, 0.12, 'sine', 0.18), 130) }
   waveStart() {
     // 战鼓
     for (let i = 0; i < 4; i++) setTimeout(() => this.tone(80, 0.18, 'sine', 0.5, 50), i * 220)

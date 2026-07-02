@@ -10,6 +10,7 @@ import LevelSelectScreen from './components/LevelSelectScreen.vue'
 import BattleScreen from './components/BattleScreen.vue'
 import ResultScreen from './components/ResultScreen.vue'
 import ExchangeScreen from './components/ExchangeScreen.vue'
+import TradeScreen from './components/TradeScreen.vue'
 
 const store = useGameStore()
 const current = computed(() => store.screen)
@@ -26,5 +27,6 @@ const current = computed(() => store.screen)
     <BattleScreen :class="{ active: current === 'battle' }" />
     <ResultScreen :class="{ active: current === 'result' }" />
     <ExchangeScreen :class="{ active: current === 'exchange' }" />
+    <TradeScreen :class="{ active: current === 'trade' }" />
   </div>
 </template>

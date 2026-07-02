@@ -5,7 +5,7 @@ class VoiceEngine {
   enabled = true
   voices: SpeechSynthesisVoice[] = []
 
-  private load() {
+  load() {
     if (typeof speechSynthesis === 'undefined') return false
     this.voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('zh'))
     return true

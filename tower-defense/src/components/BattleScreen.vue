@@ -7,6 +7,8 @@ import { TOWERS, TowerKind } from '../data/towers'
 import { UNITS } from '../data/units'
 import { SKILLS } from '../data/commander'
 import { createGame, BattleConfig, BattleCallbacks, BattleResult } from '../game/engine'
+import { audio } from '../game/audio'
+import { RARITY_COLOR, Rarity } from '../data/loot'
 import type Phaser from 'phaser'
 
 const store = useGameStore()
@@ -33,6 +35,10 @@ const hud = reactive({
   selTowerName: '',
   skills: SKILLS.map(s => ({ ...s, ready: true, cdLeft: 0, locked: store.rankIndex + 1 < s.unlockRank })),
 })
+
+// 战利品掉落浮动提示队列
+const lootToasts = ref<{ id: number; name: string; icon: string; rarity: Rarity; color: string }[]>([])
+let lootSeq = 0
 
 const cfg: BattleConfig = {
   level,
@@ -62,6 +68,18 @@ const cb: BattleCallbacks = {
   onSpeed: (m) => { hud.speed = m },
   onSkillReady: (id, ready, cd) => {
     const s = hud.skills.find(x => x.id === id); if (s) { s.ready = ready; s.cdLeft = cd }
+  },
+  onLoot: (item) => {
+    store.addLoot(item.id)
+    audio.loot()
+    const rarity = item.rarity as Rarity
+    const color = RARITY_COLOR[rarity] || '#FFDD66'
+    const seq = ++lootSeq
+    lootToasts.value.push({ id: seq, name: item.name, icon: item.icon, rarity, color })
+    // 1.8s 后移除该提示
+    setTimeout(() => {
+      lootToasts.value = lootToasts.value.filter(t => t.id !== seq)
+    }, 1800)
   },
   onEnd: (r: BattleResult) => {
     setTimeout(() => {
@@ -162,6 +180,15 @@ const showTowerPanel = () => hud.selTowerKind !== null
       </button>
     </div>
 
+    <!-- 战利品掉落浮动提示 -->
+    <div class="loot-toasts">
+      <div v-for="t in lootToasts" :key="t.id" :class="['loot-toast', t.rarity]" :style="{ borderColor: t.color, color: t.color }">
+        <span class="ms loot-ic">{{ t.icon }}</span>
+        <span class="loot-name">获得 {{ t.name }}</span>
+        <span class="loot-tag">{{ t.rarity === 'legendary' ? '传说' : t.rarity === 'epic' ? '史诗' : t.rarity === 'rare' ? '稀有' : '普通' }}</span>
+      </div>
+    </div>
+
     <!-- 建造面板（选中塔位时显示） -->
     <div class="build-panel" v-if="hud.selectedSlot !== null && !showTowerPanel()">
       <div class="bp-title"><span class="ms si">add_location_alt</span>在此建造防御塔</div>
@@ -236,6 +263,18 @@ const showTowerPanel = () => hud.selTowerKind !== null
 .sk-ic { font-size: 22px; color: var(--gold-light); }
 .sk-cd { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); color: #fff; font-size: 11px; border-radius: 0 0 10px 10px; text-align: center; }
 .sk-lock { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); border-radius: 10px; font-size: 16px; }
+
+/* 战利品掉落提示 */
+.loot-toasts { position: absolute; top: 118px; right: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 13; pointer-events: none; }
+.loot-toast { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: rgba(10,5,15,0.92); border: 2px solid; border-radius: 10px; font-size: 12px; font-family: var(--font-body); animation: lootIn .3s cubic-bezier(.34,1.56,.64,1), lootOut .4s ease 1.4s forwards; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.loot-toast.legendary { box-shadow: 0 0 14px rgba(255,179,0,0.7); animation: lootIn .3s cubic-bezier(.34,1.56,.64,1), legendPulse 1s ease infinite 0.3s, lootOut .4s ease 1.4s forwards; }
+.loot-toast.epic { box-shadow: 0 0 10px rgba(186,104,200,0.6); }
+.loot-ic { font-size: 18px; }
+.loot-name { font-weight: 700; }
+.loot-tag { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: rgba(255,255,255,0.12); }
+@keyframes lootIn { from { transform: translateX(60px) scale(0.6); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+@keyframes lootOut { to { transform: translateX(40px); opacity: 0; } }
+@keyframes legendPulse { 50% { box-shadow: 0 0 20px rgba(255,179,0,1); } }
 
 .si { font-size: 14px; color: var(--gold); }
 
