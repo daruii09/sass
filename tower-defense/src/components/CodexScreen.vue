@@ -4,22 +4,26 @@ import { useGameStore } from '../stores/game'
 import { UNITS } from '../data/units'
 import { TOWERS } from '../data/towers'
 import { ENEMIES } from '../data/enemies'
-import { ASSETS } from '../data/assets'
 
 const store = useGameStore()
 const tab = ref<'units' | 'towers' | 'enemies' | 'weapons'>('units')
 const rankIdx = store.rankIndex
 
+// Q 版图标映射
+const UNIT_ICONS: Record<string, string> = { shield: 'shield', spear: 'legend_toggle', archer: 'north_east', ballista: 'gps_fixed', catapult: 'rocket_launch', cavalry: 'directions_horse', guard: 'security' }
+const TOWER_ICONS: Record<string, string> = { archer: 'north_east', ballista: 'gps_fixed', catapult: 'rocket_launch', barracks: 'domain' }
+const ENEMY_ICONS: Record<string, string> = { bandit: 'skull', shield: 'sprint', archer: 'north_east', cavalry: 'directions_horse', heavy: 'fitness_center', eagle: 'raven', siege: 'precision_manufacturing', brute: 'person_raised_hand', boss: 'crown' }
+
 const weapons = computed(() => ([
-  { id: 'dagger', name: '短刀', asset: ASSETS.weapons.dagger, desc: '边军标配短兵，近战肉搏用。', dmg: '攻击 +8' },
-  { id: 'shield', name: '圆盾', asset: ASSETS.weapons.shield, desc: '木盾铁钉，格挡减伤。', dmg: '防御 +20' },
-  { id: 'spear', name: '长枪', asset: ASSETS.weapons.spear, desc: '红缨长枪，长柄刺击。', dmg: '攻击 +16' },
-  { id: 'bow', name: '猎弓', asset: ASSETS.weapons.bow, desc: '竹木轻弓，速射压制。', dmg: '远程 +14' },
-  { id: 'ballista', name: '床弩', asset: ASSETS.weapons.ballista, desc: '巨型弩机，破甲专精。', dmg: '远程 +55' },
-  { id: 'catapult', name: '投石车', asset: ASSETS.weapons.catapult, desc: '杠杆抛石，范围杀伤。', dmg: '攻城 +75' },
-  { id: 'ironbow', name: '铁胎弓', asset: ASSETS.weapons.ironbow, desc: '黑铁强弓，贯甲一矢。', dmg: '远程 +35' },
-  { id: 'repeater', name: '连弩', asset: ASSETS.weapons.repeater, desc: '诸葛连弩，十矢连发。', dmg: '远程 +20' },
-  { id: 'dualblade', name: '双刀', asset: ASSETS.weapons.dualblade, desc: '连环双刃，禁军专用。', dmg: '攻击 +45' },
+  { id: 'dagger', name: '短刀', icon: 'hardware', desc: '边军标配短兵，近战肉搏用。', dmg: '攻击 +8' },
+  { id: 'shield', name: '圆盾', icon: 'shield', desc: '木盾铁钉，格挡减伤。', dmg: '防御 +20' },
+  { id: 'spear', name: '长枪', icon: 'arrow_forward', desc: '红缨长枪，长柄刺击。', dmg: '攻击 +16' },
+  { id: 'bow', name: '猎弓', icon: 'north_east', desc: '竹木轻弓，速射压制。', dmg: '远程 +14' },
+  { id: 'ballista', name: '床弩', icon: 'gps_fixed', desc: '巨型弩机，破甲专精。', dmg: '远程 +55' },
+  { id: 'catapult', name: '投石车', icon: 'rocket_launch', desc: '杠杆抛石，范围杀伤。', dmg: '攻城 +75' },
+  { id: 'ironbow', name: '铁胎弓', icon: 'adjust', desc: '黑铁强弓，贯甲一矢。', dmg: '远程 +35' },
+  { id: 'repeater', name: '连弩', icon: 'replay', desc: '诸葛连弩，十矢连发。', dmg: '远程 +20' },
+  { id: 'dualblade', name: '双刀', icon: 'content_cut', desc: '连环双刃，禁军专用。', dmg: '攻击 +45' },
 ]))
 </script>
 
@@ -41,7 +45,7 @@ const weapons = computed(() => ([
     <div class="list">
       <template v-if="tab==='units'">
         <div v-for="u in UNITS" :key="u.id" :class="['item', { lock: rankIdx + 1 < u.unlockRank }]">
-          <img class="im" :src="u.asset" alt="" />
+          <QAsset class="im" variant="unit" :src="u.asset" :name="u.name" :icon="UNIT_ICONS[u.id] || 'person'" :rounded="12" />
           <div class="info">
             <div class="nm">{{ u.name }} <span class="tag">{{ u.type==='melee'?'近战':u.type==='ranged'?'远程':u.type==='cavalry'?'骑兵':'攻城' }}</span></div>
             <div class="ds">{{ u.desc }}</div>
@@ -54,7 +58,7 @@ const weapons = computed(() => ([
       </template>
       <template v-if="tab==='towers'">
         <div v-for="t in Object.values(TOWERS)" :key="t.kind" :class="['item', { lock: rankIdx + 1 < t.unlockRank }]">
-          <img class="im" :src="t.tiers[0].asset" alt="" />
+          <QAsset class="im" variant="tower" :src="t.tiers[0].asset" :name="t.name" :icon="TOWER_ICONS[t.kind] || 'tower'" :tier="1" :rounded="12" />
           <div class="info">
             <div class="nm">{{ t.name }} <span class="tag tier">3级可升</span></div>
             <div class="ds">{{ t.desc }}</div>
@@ -66,7 +70,7 @@ const weapons = computed(() => ([
       </template>
       <template v-if="tab==='enemies'">
         <div v-for="e in Object.values(ENEMIES)" :key="e.id" class="item">
-          <img class="im enemy" :src="e.asset" alt="" />
+          <QAsset class="im" variant="enemy" :src="e.asset" :name="e.name" :icon="ENEMY_ICONS[e.id] || 'skull'" :rounded="12" />
           <div class="info">
             <div class="nm">{{ e.name }} <span class="tag red" v-if="e.boss">BOSS</span></div>
             <div class="ds">{{ e.desc }}</div>
@@ -78,7 +82,7 @@ const weapons = computed(() => ([
       </template>
       <template v-if="tab==='weapons'">
         <div v-for="w in weapons" :key="w.id" class="item">
-          <img class="im" :src="w.asset" alt="" />
+          <QAsset class="im" variant="weapon" :name="w.name" :icon="w.icon" :rounded="12" />
           <div class="info">
             <div class="nm">{{ w.name }}</div>
             <div class="ds">{{ w.desc }}</div>

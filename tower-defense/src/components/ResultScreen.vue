@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { useGameStore } from '../stores/game'
-import { ASSETS } from '../data/assets'
 
 const store = useGameStore()
 const r = store.lastResult
 
-function next() {
-  if (r?.win) store.go('levels')
-  else store.go('levels')
-}
+function next() { store.go('levels') }
 function retry() { store.go('battle') }
 </script>
 
 <template>
   <section class="screen result grain">
-    <img class="bg" :src="r?.win ? ASSETS.bg.capital : ASSETS.bg.splash" alt="" />
-    <div class="overlay" :class="{ win: r?.win, lose: !r?.win }"></div>
+    <!-- Q 版 CSS 场景背景 -->
+    <div class="scene" :class="{ win: r?.win, lose: !r?.win }">
+      <div class="sky-bg"></div>
+      <div class="rays" v-if="r?.win"></div>
+      <div class="sparkle" v-for="i in 12" :key="i" :style="{ left: (10+i*7)+'%', top: (10+(i%5)*16)+'%', animationDelay: (i*0.2)+'s' }"></div>
+    </div>
 
     <div class="content" v-if="r">
       <div class="banner">
@@ -43,10 +43,15 @@ function retry() { store.go('battle') }
 
 <style scoped>
 .result { justify-content: center; }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
-.overlay { position: absolute; inset: 0; }
-.overlay.win { background: radial-gradient(ellipse at center, rgba(212,164,55,0.25), rgba(10,4,0,0.9)); }
-.overlay.lose { background: radial-gradient(ellipse at center, rgba(139,0,0,0.3), rgba(0,0,0,0.92)); }
+/* === Q 版 CSS 场景背景 === */
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.sky-bg { position: absolute; inset: 0; }
+.scene.win .sky-bg { background: radial-gradient(ellipse at 50% 30%, #f5e6a8 0%, #d4a437 30%, #8b6914 60%, #1a1000 100%); }
+.scene.lose .sky-bg { background: radial-gradient(ellipse at 50% 30%, #4a1a2a 0%, #2a0a0a 50%, #0a0202 100%); }
+.rays { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120%; height: 60%; background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.08) 5deg, transparent 10deg, transparent 20deg, rgba(255,255,255,0.08) 25deg, transparent 30deg, transparent 40deg, rgba(255,255,255,0.08) 45deg, transparent 50deg, transparent 60deg, rgba(255,255,255,0.08) 65deg, transparent 70deg, transparent 80deg, rgba(255,255,255,0.08) 85deg, transparent 90deg, transparent 100deg, rgba(255,255,255,0.08) 105deg, transparent 110deg, transparent 120deg, rgba(255,255,255,0.08) 125deg, transparent 130deg, transparent 140deg, rgba(255,255,255,0.08) 145deg, transparent 150deg, transparent 160deg, rgba(255,255,255,0.08) 165deg, transparent 170deg, transparent 180deg, transparent 190deg, rgba(255,255,255,0.08) 195deg, transparent 200deg, transparent 220deg, rgba(255,255,255,0.08) 225deg, transparent 230deg, transparent 240deg, transparent 250deg, rgba(255,255,255,0.08) 255deg, transparent 260deg, transparent 280deg, rgba(255,255,255,0.08) 285deg, transparent 290deg, transparent 300deg, rgba(255,255,255,0.08) 305deg, transparent 310deg, transparent 320deg, transparent 330deg, rgba(255,255,255,0.08) 335deg, transparent 340deg, transparent 360deg); animation: spin 20s linear infinite; }
+.sparkle { position: absolute; width: 4px; height: 4px; background: var(--gold-light); border-radius: 50%; animation: sparkle 1.5s ease-in-out infinite; box-shadow: 0 0 8px var(--gold); }
+.scene.lose .sparkle { background: #ff444420; box-shadow: none; }
+@keyframes sparkle { 0%,100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
 
 .content { position: relative; z-index: 3; width: 84%; display: flex; flex-direction: column; align-items: center; gap: 20px; }
 

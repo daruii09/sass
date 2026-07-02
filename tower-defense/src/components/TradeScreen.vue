@@ -49,8 +49,12 @@ function autoClear() {
 
 <template>
   <section class="screen trade grain">
-    <img class="bg" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=3D%20rendered%20ancient%20Chinese%20marketplace%20street%2C%20stalls%2C%20banners%2C%20lanterns%2C%20bustling%2C%20warm%20light&image_size=landscape_16_9" alt="" />
-    <div class="overlay"></div>
+    <!-- Q 版 CSS 集市场景 -->
+    <div class="scene">
+      <div class="market-bg"></div>
+      <div class="stall" v-for="i in 3" :key="i" :style="{ left: (8+i*28)+'%', bottom: '10%', transform: `scaleX(${i%2 ? 1 : -1})` }"><div class="stall-roof"></div><div class="stall-body"></div></div>
+      <div class="lanterns" v-for="i in 5" :key="'l'+i" :style="{ left: (5+i*19)+'%', top: '8%', animationDelay: (i*0.4)+'s' }"></div>
+    </div>
 
     <header class="hd">
       <button class="back btn-ghost btn" @click="store.go('main')"><span class="ms">arrow_back</span></button>
@@ -105,8 +109,15 @@ function autoClear() {
 
 <style scoped>
 .trade { background: linear-gradient(180deg, #1a1410 0%, #2a1f14 100%); }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.16; }
-.overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,10,4,0.7), rgba(10,4,4,0.9)); }
+/* === Q 版 CSS 集市场景 === */
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.market-bg { position: absolute; inset: 0; background: linear-gradient(180deg, #3a2a18 0%, #d4944a 20%, #e8c888 35%, #6a4a2a 70%, #1a0e04 100%); }
+.stall { position: absolute; width: 60px; }
+.stall-roof { width: 70px; height: 24px; margin-left: -5px; background: linear-gradient(180deg, var(--crimson), #5a0000); clip-path: polygon(10% 100%, 0 50%, 50% 0, 100% 50%, 90% 100%); border-bottom: 2px solid var(--gold); }
+.stall-body { width: 60px; height: 28px; background: linear-gradient(180deg, #5a3a1a, #2a1808); border-radius: 0 0 4px 4px; border: 1px solid rgba(212,164,55,0.3); border-top: none; }
+.lanterns { position: absolute; width: 14px; height: 18px; background: var(--crimson); border: 1px solid var(--gold); border-radius: 50%; animation: lanternSway 3s ease-in-out infinite; transform-origin: top center; box-shadow: 0 0 10px rgba(255,140,60,0.5); }
+.lanterns::before { content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 1px; height: 4px; background: #3a2410; }
+@keyframes lanternSway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
 .hd { position: relative; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
 .back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .hd h1 { flex: 1; font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }

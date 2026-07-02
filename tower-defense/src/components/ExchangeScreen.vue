@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useGameStore } from '../stores/game'
-import { ASSETS } from '../data/assets'
 
 const store = useGameStore()
 const amount = ref(10000)
@@ -26,8 +25,11 @@ function doExchange() {
 
 <template>
   <section class="screen exchange grain">
-    <img class="bg" :src="ASSETS.bg.hall" alt="" />
-    <div class="overlay"></div>
+    <!-- Q 版 CSS 库房场景 -->
+    <div class="scene">
+      <div class="vault-bg"></div>
+      <div class="coins" v-for="i in 8" :key="i" :style="{ left: (8+i*10)+'%', top: (10+i*6)+'%', animationDelay: (i*0.3)+'s' }"></div>
+    </div>
 
     <header class="hd">
       <button class="back btn-ghost btn" @click="store.go('main')"><span class="ms">arrow_back</span></button>
@@ -90,8 +92,11 @@ function doExchange() {
 
 <style scoped>
 .exchange { background: linear-gradient(180deg, #0d1f14 0%, #1a1a2e 100%); }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.18; }
-.overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,20,10,0.6), rgba(10,4,10,0.85)); }
+/* === Q 版 CSS 库房场景 === */
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.vault-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, #3a5a2a 0%, #1a2812 50%, #0a0f08 100%); }
+.coins { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-deep)); border: 2px solid rgba(255,255,255,0.3); animation: coinFloat 4s ease-in-out infinite; opacity: 0.3; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+@keyframes coinFloat { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(180deg); } }
 .hd { position: relative; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
 .back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .hd h1 { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }

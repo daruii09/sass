@@ -4,6 +4,8 @@ import { RANKS, SKILLS } from '../data/commander'
 
 const store = useGameStore()
 const idx = store.rankIndex
+
+const RANK_ICONS = ['person', 'groups', 'military_tech', 'shield', 'star', 'flag', 'workspace_premium', 'verified']
 </script>
 
 <template>
@@ -18,7 +20,7 @@ const idx = store.rankIndex
       <!-- 当前阶段卡 -->
       <div class="cur card">
         <div class="cur-row">
-          <img class="p" :src="RANKS[idx].asset" alt="" />
+          <QAsset class="p" variant="rank" :src="RANKS[idx].asset" :name="RANKS[idx].name" :icon="RANK_ICONS[idx] || 'person'" :rounded="12" />
           <div class="info">
             <div class="rn">{{ RANKS[idx].name }}</div>
             <div class="ep">经验：{{ store.totalClears }} 通关</div>

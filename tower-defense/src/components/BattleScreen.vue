@@ -194,7 +194,7 @@ const showTowerPanel = () => hud.selTowerKind !== null
       <div class="bp-title"><span class="ms si">add_location_alt</span>在此建造防御塔</div>
       <div class="bp-list">
         <div v-for="t in availableTowers" :key="t.kind" :class="['bp-item', { dis: hud.grain < t.tiers[0].cost }]" @click="build(t.kind)">
-          <img :src="t.tiers[0].asset" alt="" />
+          <QAsset variant="tower" :src="t.tiers[0].asset" :name="t.name" :icon="t.kind === 'archer' ? 'north_east' : t.kind === 'ballista' ? 'gps_fixed' : t.kind === 'catapult' ? 'rocket_launch' : 'domain'" :tier="1" :rounded="6" style="width:44px;height:44px" />
           <div class="bp-nm">{{ t.name }}</div>
           <div class="bp-cost"><span class="ms si">grass</span>{{ t.tiers[0].cost }}</div>
         </div>
@@ -223,7 +223,7 @@ const showTowerPanel = () => hud.selTowerKind !== null
     <div class="deploy-bar">
       <div class="deploy-list">
         <div v-for="u in availableUnits" :key="u.id" :class="['dp', { dis: hud.grain < u.cost || hud.cmd >= hud.cmdMax }]" @click="deploy(u.id)">
-          <img :src="u.asset" alt="" />
+          <QAsset variant="unit" :src="u.asset" :name="u.name" :icon="u.id === 'shield' ? 'shield' : u.id === 'spear' ? 'legend_toggle' : u.id === 'archer' ? 'north_east' : u.id === 'ballista' ? 'gps_fixed' : u.id === 'catapult' ? 'rocket_launch' : u.id === 'cavalry' ? 'directions_horse' : 'security'" :rounded="6" style="width:40px;height:40px" />
           <div class="dp-nm">{{ u.name }}</div>
           <div class="dp-cost"><span class="ms si">grass</span>{{ u.cost }}</div>
         </div>

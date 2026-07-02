@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useGameStore } from '../stores/game'
-import { ASSETS } from '../data/assets'
 
 const store = useGameStore()
 const progress = ref(0)
@@ -23,8 +22,13 @@ function skip() { progress.value = 100; setTimeout(() => store.go('auth'), 200) 
 
 <template>
   <section class="screen splash grain">
-    <img class="bg" :src="ASSETS.bg.splash" alt="" />
-    <div class="bg-overlay"></div>
+    <!-- Q 版 CSS 战场场景背景 -->
+    <div class="scene">
+      <div class="sky-bg"></div>
+      <div class="mtn mtn-far"></div>
+      <div class="mtn mtn-mid"></div>
+      <div class="field"></div>
+    </div>
 
     <!-- 飘动烽火粒子 -->
     <div class="embers">
@@ -67,8 +71,13 @@ function skip() { progress.value = 100; setTimeout(() => store.go('auth'), 200) 
   background: radial-gradient(ellipse at 50% 35%, #4a1200 0%, #2a0800 50%, #0a0200 100%);
   align-items: center; justify-content: center;
 }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.32; filter: saturate(1.3) contrast(1.1); }
-.bg-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 0%, rgba(10,2,0,0.85) 100%); }
+/* === Q 版 CSS 战场场景 === */
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.sky-bg { position: absolute; inset: 0; background: linear-gradient(180deg, #5a1800 0%, #c0392b 18%, #e67e22 30%, #2a0800 55%, #0a0200 100%); }
+.mtn { position: absolute; left: 0; width: 100%; }
+.mtn-far { bottom: 25%; height: 80px; background: linear-gradient(180deg, #3a1820, #1a0810); clip-path: polygon(0 100%, 0 40%, 15% 60%, 30% 10%, 45% 50%, 60% 20%, 75% 45%, 90% 15%, 100% 50%, 100% 100%); }
+.mtn-mid { bottom: 20%; height: 60px; background: linear-gradient(180deg, #1a0810, #0a0204); clip-path: polygon(0 100%, 0 55%, 20% 30%, 40% 60%, 55% 20%, 70% 50%, 85% 25%, 100% 45%, 100% 100%); }
+.field { position: absolute; bottom: 0; left: 0; width: 100%; height: 22%; background: linear-gradient(180deg, #0a0204, #0a0000); border-top: 2px solid rgba(139,69,19,0.3); }
 
 .embers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .embers span {
