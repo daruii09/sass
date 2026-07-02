@@ -9,7 +9,7 @@ import { Projectile } from './Projectile'
 import { Effects } from './Effects'
 import { audio } from './audio'
 import { voice } from './voice'
-import { ensureFallbackTexture } from './fallback'
+import { ensureFallbackTexture, isTextureValid } from './fallback'
 import { rollLoot } from '../data/loot'
 import { LevelDef } from '../data/levels'
 import { ENEMIES } from '../data/enemies'
@@ -107,9 +107,18 @@ export class BattleScene extends Phaser.Scene {
     // 箭矢占位纹理（用 graphics 生成）
     this.projKeys = { archer: 'shield', ballista: 'spear', catapult: 'catapult', proj: 'archer' }
 
-    this.load.crossOrigin = 'anonymous'
+    // 不设置 crossOrigin='anonymous'：该选项会强制 CORS 请求，
+    // 若服务器未返回 CORS 头则图片加载全部失败。不设置时图片仍可正常显示。
+    // 清除可能存在的无效（空/损坏）纹理，确保重新加载真实图片
     loaders.forEach(l => {
+      if (this.textures.exists(l.key) && !isTextureValid(this, l.key)) {
+        this.textures.remove(l.key)
+      }
       if (!this.textures.exists(l.key)) this.load.image(l.key, l.url)
+    })
+    // 加载失败时立即生成 Q 版回退纹理（在 create() 之前完成，确保纹理始终可用）
+    this.load.on('loaderror', (file: any) => {
+      if (file && file.key) ensureFallbackTexture(this, file.key)
     })
     ;(window as any).__UNIT_LOOKUP__ = unitById
     // 塔选中回调

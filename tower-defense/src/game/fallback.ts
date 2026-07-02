@@ -34,7 +34,7 @@ function drawChibi(g: Phaser.GameObjects.Graphics, p: Palette, weapon: 'sword' |
   g.fillCircle(w / 2 - 8, h / 2 - 8, 2); g.fillCircle(w / 2 + 8, h / 2 - 8, 2)
   // 嘴
   g.lineStyle(1.5, enemy ? 0x8b0000 : 0x6b4423, 0.8)
-  if (enemy) g.beginPath(); g.arc(w / 2, h / 2 - 7, 2.5, 0.2, Math.PI - 0.2); g.strokePath()
+  g.beginPath(); g.arc(w / 2, h / 2 - 7, 2.5, 0.2, Math.PI - 0.2); g.strokePath()
   // 武器
   g.lineStyle(3, 0x8b6914, 1)
   if (weapon === 'sword') { g.lineBetween(w / 2 + 14, h / 2 - 8, w / 2 + 18, h / 2 + 12); g.lineStyle(2, 0xd4a437); g.lineBetween(w / 2 + 12, h / 2 - 6, w / 2 + 16, h / 2 - 2) }
@@ -111,9 +111,20 @@ function drawBuilding(g: Phaser.GameObjects.Graphics, kind: 'castle' | 'camp') {
   }
 }
 
-// 为场景生成回退纹理：只在纹理不存在时生成
+// 检查纹理是否有效（有实际像素数据，宽高大于1）
+export function isTextureValid(scene: Phaser.Scene, key: string): boolean {
+  if (!scene.textures.exists(key)) return false
+  const tex = scene.textures.get(key)
+  const src = tex && tex.source && tex.source[0]
+  return !!(src && src.width > 1 && src.height > 1)
+}
+
+// 为场景生成回退纹理：纹理不存在或无效（空/损坏）时生成
 export function ensureFallbackTexture(scene: Phaser.Scene, key: string) {
-  if (scene.textures.exists(key)) return
+  if (scene.textures.exists(key)) {
+    if (isTextureValid(scene, key)) return  // 纹理有效，保留真实图片
+    scene.textures.remove(key)              // 纹理无效（API 返回空/损坏内容），移除后重新生成
+  }
   const g = scene.make.graphics({ x: 0, y: 0 }, false)
   // 解析 key 决定画什么
   // 塔：archer1~3 / ballista1~3 / catapult1~3 / barracks1~3
