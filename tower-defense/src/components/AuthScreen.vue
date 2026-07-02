@@ -11,11 +11,6 @@ const nickname = ref('')
 const agreed = ref(true)
 const err = ref('')
 const showPwd = ref(false)
-const heroLoaded = ref(false)
-const heroFailed = ref(false)
-
-// 真实游戏人物图片：3D 渲染中国古代将军
-const heroImgUrl = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('3D rendered Chinese ancient general warrior, full body, standing heroic pose, ornate golden armor, red cape, helmet with red feather plume, holding long sword, brave expression, game character concept art, high quality, dramatic lighting, transparent background, chibi proportion') + '&image_size=portrait_4_3'
 
 const valid = computed(() => {
   if (mode.value === 'register' && nickname.value.trim().length < 2) return false
@@ -69,28 +64,55 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
       <div class="flag" v-for="i in 5" :key="i" :style="{ left: (8+i*19)+'%', animationDelay: (i*0.7)+'s' }">令</div>
     </div>
 
-    <!-- 真实游戏人物：3D 渲染中国古代将军 -->
-    <div class="hero-char">
-      <div class="hero-glow"></div>
-      <img v-if="!heroFailed" :src="heroImgUrl" alt="将军" class="hero-img" :class="{ loaded: heroLoaded }" @load="heroLoaded = true" @error="heroFailed = true" />
-      <!-- 加载失败时的 CSS 回退人物 -->
-      <div v-if="heroFailed" class="mascot">
-        <div class="m-head">
-          <div class="m-helmet"></div>
-          <div class="m-helmet-flag"></div>
-          <div class="m-face">
-            <div class="m-eye l"></div>
-            <div class="m-eye r"></div>
-            <div class="m-blush l"></div>
-            <div class="m-blush r"></div>
-            <div class="m-mouth"></div>
+    <!-- 女性古装人物：纯 CSS 绘制，透明背景，坐在登录卡片上方 -->
+    <div class="heroine">
+      <div class="h-glow"></div>
+      <div class="h-figure">
+        <!-- 飘动的长发 -->
+        <div class="hair hair-back"></div>
+        <div class="hair hair-back-2"></div>
+        <!-- 头部 -->
+        <div class="head">
+          <!-- 发髻 + 金钗 -->
+          <div class="bun"><div class="zhan"></div><div class="zhan z2"></div></div>
+          <div class="hair-bang"></div>
+          <div class="face">
+            <div class="eye l"><i></i></div>
+            <div class="eye r"><i></i></div>
+            <div class="blush l"></div>
+            <div class="blush r"></div>
+            <div class="brow l"></div>
+            <div class="brow r"></div>
+            <div class="mouth"></div>
+            <div class="forehead-mark"></div>
           </div>
+          <!-- 耳坠 -->
+          <div class="earring l"></div>
+          <div class="earring r"></div>
         </div>
-        <div class="m-body">
-          <div class="m-armor"></div>
-          <div class="m-arms"></div>
+        <!-- 身体：汉服 -->
+        <div class="body">
+          <!-- 飘动的水袖 -->
+          <div class="sleeve sleeve-l"></div>
+          <div class="sleeve sleeve-r"></div>
+          <!-- 衣襟 -->
+          <div class="collar"></div>
+          <div class="waist-band"></div>
+          <div class="skirt"></div>
+          <!-- 手持团扇 -->
+          <div class="fan-arm">
+            <div class="fan">
+              <div class="fan-stick" v-for="i in 7" :key="i" :style="{ transform: `rotate(${-42 + i*14}deg)` }"></div>
+              <div class="fan-paint"></div>
+              <div class="fan-ribbon"></div>
+            </div>
+            <div class="hand"></div>
+          </div>
+          <div class="hand hand-l"></div>
         </div>
       </div>
+      <!-- 飘落花瓣装饰 -->
+      <div class="petal" v-for="i in 5" :key="i" :style="{ left: (10+i*18)+'%', animationDelay: (i*1.3)+'s', animationDuration: (7+i%3)+'s' }"></div>
     </div>
 
     <div class="panel">
@@ -185,38 +207,223 @@ function guest() { audio.resume(); audio.login(); store.login('无名小卒', tr
 }
 @keyframes flagFall { 0% { transform: translateY(-40px) rotate(-10deg); opacity: 0; } 10% { opacity: 0.6; } 100% { transform: translateY(720px) rotate(20deg); opacity: 0; } }
 
-/* === 真实游戏人物 === */
-.hero-char { position: absolute; top: 7%; right: 8%; z-index: 3; width: 130px; height: 170px; display: flex; align-items: flex-end; justify-content: center; animation: mascotBob 2.6s ease-in-out infinite; }
-.hero-glow { position: absolute; inset: -20px; border-radius: 50%; background: radial-gradient(circle, rgba(212,164,55,0.3), transparent 65%); animation: aura 3s ease-in-out infinite; pointer-events: none; }
-.hero-img { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.6s ease; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5)); }
-.hero-img.loaded { opacity: 1; }
+/* === 女性古装人物（透明背景，坐在登录卡片上，各部位独立动画） === */
+/* 整体定位：水平居中，垂直方向与登录卡片上沿重叠，让人物"坐"在卡片上 */
+.heroine {
+  position: absolute;
+  top: 16%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 260px;
+  z-index: 5;                 /* 高于 panel，确保无遮挡显示 */
+  pointer-events: none;       /* 不阻挡登录卡片交互 */
+}
+.h-glow {
+  position: absolute; inset: -10px -20px 30px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(255,200,220,0.18), transparent 65%);
+  animation: aura 4s ease-in-out infinite;
+}
+@keyframes aura { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
 
-/* === Q 版小将吉祥物（回退） === */
-.mascot { position: relative; width: 76px; height: 96px; }
-@keyframes mascotBob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
-.m-head { position: relative; width: 60px; height: 60px; margin: 0 auto; background: #ffe0c4; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-.m-helmet { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 50px; height: 26px; background: linear-gradient(180deg, var(--gold), var(--gold-deep)); border: 3px solid var(--ink); border-radius: 28px 28px 8px 8px / 22px 22px 8px 8px; }
-.m-helmet::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background: var(--crimson); border: 2px solid var(--ink); border-radius: 50%; }
-.m-helmet-flag { position: absolute; top: -22px; right: 6px; width: 14px; height: 18px; background: var(--crimson); border: 2px solid var(--ink); clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%); animation: flagWave 1.6s ease-in-out infinite; transform-origin: left center; }
-.m-face { position: absolute; inset: 0; }
-.m-eye { position: absolute; top: 32px; width: 7px; height: 9px; background: var(--ink); border-radius: 50%; }
-.m-eye.l { left: 16px; }
-.m-eye.r { right: 16px; }
-.m-eye::after { content: ''; position: absolute; top: 1px; left: 1px; width: 3px; height: 3px; background: #fff; border-radius: 50%; }
-.m-blush { position: absolute; top: 42px; width: 9px; height: 6px; background: #ff9aa2; border-radius: 50%; opacity: 0.7; }
-.m-blush.l { left: 11px; }
-.m-blush.r { right: 11px; }
-.m-mouth { position: absolute; top: 44px; left: 50%; transform: translateX(-50%); width: 12px; height: 7px; border: 2px solid var(--ink); border-top: none; border-radius: 0 0 12px 12px; background: #c0392b; }
-.m-body { position: relative; width: 56px; height: 40px; margin: -6px auto 0; }
-.m-armor { position: absolute; inset: 0; background: linear-gradient(180deg, #4a6b8a, #2a3f5a); border: 3px solid var(--ink); border-radius: 16px 16px 10px 10px; }
-.m-armor::after { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; background: var(--gold); border: 2px solid var(--ink); border-radius: 4px; }
-.m-arms { position: absolute; top: 8px; left: -6px; right: -6px; height: 16px; }
-.m-arms::before, .m-arms::after { content: ''; position: absolute; top: 0; width: 12px; height: 16px; background: #ffe0c4; border: 3px solid var(--ink); border-radius: 8px; }
-.m-arms::before { left: 0; }
-.m-arms::after { right: 0; }
+/* 人物整体：呼吸（轻微缩放，非上下移动） */
+.h-figure {
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: 200px; height: 260px;
+  animation: breathe 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes breathe { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.012); } }
+
+/* 长发后摆：飘动 */
+.hair {
+  position: absolute; left: 50%; top: 18px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #1a0e1a, #2a1626 60%, #3a1f30);
+  border-radius: 30px 30px 50% 50% / 30px 30px 60% 60%;
+}
+.hair-back { width: 90px; height: 130px; transform-origin: 50% 0%; animation: hairSwayL 3.2s ease-in-out infinite; }
+.hair-back-2 { width: 70px; height: 110px; transform-origin: 50% 0%; animation: hairSwayR 3.6s ease-in-out infinite; opacity: 0.85; z-index: 0; }
+@keyframes hairSwayL { 0%,100% { transform: translateX(-50%) rotate(-3deg) skewX(-2deg); } 50% { transform: translateX(-50%) rotate(3deg) skewX(2deg); } }
+@keyframes hairSwayR { 0%,100% { transform: translateX(-50%) rotate(2deg) skewX(1deg); } 50% { transform: translateX(-50%) rotate(-2deg) skewX(-1deg); } }
+
+/* 头部 */
+.head {
+  position: absolute; left: 50%; top: 8px;
+  transform: translateX(-50%);
+  width: 70px; height: 80px;
+  z-index: 3;
+  animation: headTilt 6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes headTilt { 0%,100% { transform: translateX(-50%) rotate(-3deg); } 50% { transform: translateX(-50%) rotate(3deg); } }
+
+/* 发髻 */
+.bun {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  width: 38px; height: 28px;
+  background: linear-gradient(180deg, #1a0e1a, #2a1626);
+  border-radius: 50% 50% 40% 40% / 70% 70% 30% 30%;
+  border: 2px solid #0a0508;
+  z-index: 4;
+}
+.bun::before { content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%); width: 26px; height: 8px; background: linear-gradient(180deg, #d4a437, #8b6914); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+/* 金钗步摇 */
+.zhan { position: absolute; top: 4px; left: -8px; width: 14px; height: 2px; background: linear-gradient(90deg, #d4a437, transparent); transform-origin: right center; animation: zhanSwing 2s ease-in-out infinite; }
+.zhan::after { content: ''; position: absolute; left: -2px; top: -3px; width: 6px; height: 6px; background: radial-gradient(circle, #fff3b0, #d4a437); border-radius: 50%; box-shadow: 0 0 4px rgba(255,200,80,0.8); }
+.zhan.z2 { left: auto; right: -8px; transform: scaleX(-1); animation-delay: -1s; }
+@keyframes zhanSwing { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+.zhan.z2 { animation-name: zhanSwingR; }
+@keyframes zhanSwingR { 0%,100% { transform: scaleX(-1) rotate(-8deg); } 50% { transform: scaleX(-1) rotate(8deg); } }
+
+/* 刘海 */
+.hair-bang {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 64px; height: 22px;
+  background: linear-gradient(180deg, #1a0e1a, #2a1626);
+  border-radius: 40px 40px 30% 30% / 24px 24px 70% 70%;
+  z-index: 4;
+  clip-path: polygon(0 0, 100% 0, 100% 60%, 88% 100%, 75% 60%, 62% 100%, 50% 60%, 38% 100%, 25% 60%, 12% 100%, 0 60%);
+}
+
+/* 脸 */
+.face {
+  position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+  width: 56px; height: 60px;
+  background: linear-gradient(180deg, #ffe8d4, #ffd9c0);
+  border-radius: 50% 50% 45% 45% / 55% 55% 45% 45%;
+  z-index: 3;
+  box-shadow: inset -2px -3px 6px rgba(200,120,100,0.15);
+}
+.forehead-mark { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: radial-gradient(circle, #c0392b 30%, #8b0000); border-radius: 50%; box-shadow: 0 0 4px rgba(192,57,43,0.6); }
+.brow { position: absolute; top: 20px; width: 14px; height: 3px; background: #2a1626; border-radius: 3px; }
+.brow.l { left: 8px; transform: rotate(-6deg); }
+.brow.r { right: 8px; transform: rotate(6deg); }
+.eye { position: absolute; top: 26px; width: 8px; height: 10px; background: #1a0e1a; border-radius: 50%; overflow: hidden; }
+.eye.l { left: 11px; }
+.eye.r { right: 11px; }
+.eye i { position: absolute; top: 1px; left: 1px; width: 3px; height: 3px; background: #fff; border-radius: 50%; }
+.eye::after { content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: #ffe8d4; transform: scaleY(0); transform-origin: top; animation: blink 4.5s infinite; }
+.eye.r::after { animation-delay: 0.02s; }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(0); } 95%, 97% { transform: scaleY(1); } }
+.blush { position: absolute; top: 40px; width: 12px; height: 7px; background: radial-gradient(circle, rgba(255,140,150,0.65), transparent 70%); border-radius: 50%; }
+.blush.l { left: 4px; }
+.blush.r { right: 4px; }
+.mouth { position: absolute; top: 44px; left: 50%; transform: translateX(-50%); width: 10px; height: 5px; background: #c0392b; border-radius: 0 0 50% 50%; box-shadow: inset 0 -1px 2px rgba(139,0,0,0.5); }
+
+/* 耳坠 */
+.earring { position: absolute; top: 36px; width: 3px; height: 14px; }
+.earring.l { left: -2px; }
+.earring.r { right: -2px; }
+.earring::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 5px; background: #d4a437; border-radius: 50%; }
+.earring::after { content: ''; position: absolute; top: 6px; left: 1px; width: 4px; height: 8px; background: radial-gradient(circle, #fff3b0, #d4a437); border-radius: 50%; animation: earringSwing 2.4s ease-in-out infinite; transform-origin: top center; }
+.earring.r::after { animation-delay: -1.2s; }
+@keyframes earringSwing { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+/* 身体：汉服 */
+.body {
+  position: absolute; left: 50%; top: 80px;
+  transform: translateX(-50%);
+  width: 110px; height: 170px;
+  z-index: 2;
+}
+/* 衣襟（交领） */
+.collar {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 70px; height: 36px;
+  background: linear-gradient(180deg, #b02a3a, #8b1f2e);
+  clip-path: polygon(15% 0, 85% 0, 60% 100%, 50% 80%, 40% 100%);
+  border-radius: 8px 8px 4px 4px;
+  z-index: 3;
+}
+.collar::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.2)); clip-path: inherit; }
+/* 裙摆 */
+.skirt {
+  position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 140px;
+  background: linear-gradient(180deg, #c0392b 0%, #8b1f2e 50%, #5a121f 100%);
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+  z-index: 1;
+}
+.skirt::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: linear-gradient(180deg, rgba(255,220,180,0.4), transparent); }
+.skirt::after { content: ''; position: absolute; top: 20px; left: 10%; width: 80%; height: 60%; background: repeating-linear-gradient(180deg, transparent 0, transparent 14px, rgba(212,164,55,0.15) 14px, rgba(212,164,55,0.15) 16px); }
+/* 腰带 */
+.waist-band {
+  position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+  width: 92px; height: 12px;
+  background: linear-gradient(180deg, #f5e6a8, #d4a437 60%, #8b6914);
+  border-radius: 3px;
+  z-index: 3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.waist-band::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 16px; height: 24px; background: linear-gradient(180deg, #d4a437, #8b6914); clip-path: polygon(0 0, 100% 0, 80% 100%, 50% 70%, 20% 100%); animation: ribbonSway 2.8s ease-in-out infinite; transform-origin: top center; }
+@keyframes ribbonSway { 0%,100% { transform: translateX(-50%) rotate(-4deg); } 50% { transform: translateX(-50%) rotate(4deg); } }
+
+/* 水袖：飘动 */
+.sleeve {
+  position: absolute; top: 6px;
+  width: 50px; height: 80px;
+  background: linear-gradient(180deg, #c0392b, #8b1f2e);
+  z-index: 2;
+}
+.sleeve-l { left: -28px; transform-origin: 100% 0%; animation: sleeveL 3.4s ease-in-out infinite; clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 80%); }
+.sleeve-r { right: -28px; transform-origin: 0% 0%; animation: sleeveR 3.4s ease-in-out infinite; clip-path: polygon(0 0, 100% 0, 80% 80%, 20% 100%); }
+@keyframes sleeveL { 0%,100% { transform: rotate(-8deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-4px); } }
+@keyframes sleeveR { 0%,100% { transform: rotate(8deg) translateY(0); } 50% { transform: rotate(-4deg) translateY(-4px); } }
+.sleeve::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 12px; background: linear-gradient(180deg, #f5e6a8, #d4a437); }
+
+/* 双手 */
+.hand { position: absolute; width: 14px; height: 14px; background: linear-gradient(180deg, #ffe8d4, #ffd9c0); border-radius: 50%; z-index: 4; }
+.hand-l { top: 24px; left: 18px; }
+
+/* 持扇的手臂 */
+.fan-arm {
+  position: absolute; top: 24px; right: 18px;
+  z-index: 5;
+  animation: fanArm 3.6s ease-in-out infinite;
+  transform-origin: 0% 100%;
+}
+@keyframes fanArm { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(4deg); } }
+.fan-arm .hand { position: absolute; top: 0; left: 0; }
+/* 团扇 */
+.fan {
+  position: absolute; top: -34px; left: -8px;
+  width: 48px; height: 48px;
+  animation: fanWave 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+@keyframes fanWave { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(8deg); } }
+.fan-stick {
+  position: absolute; bottom: 0; left: 50%;
+  width: 1.5px; height: 46px;
+  background: linear-gradient(180deg, #8b6914, #4a3b2a);
+  transform-origin: 50% 100%;
+}
+.fan-paint {
+  position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+  width: 50px; height: 30px;
+  background: radial-gradient(ellipse at 50% 100%, #fff3b0 0%, #ffd9c0 40%, #f0c0d0 100%);
+  border-radius: 50% 50% 0 0;
+  border: 1.5px solid #8b6914;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.5);
+}
+.fan-paint::before { content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; background: radial-gradient(circle, #c0392b, transparent 70%); border-radius: 50%; }
+.fan-paint::after { content: ''; position: absolute; top: 14px; left: 12px; width: 4px; height: 4px; background: #d4a437; border-radius: 50%; box-shadow: 16px 0 0 #d4a437, 8px -2px 0 #d4a437; }
+.fan-ribbon { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 12px; background: linear-gradient(180deg, #c0392b, #8b1f2e); animation: ribbonSway 2s ease-in-out infinite; transform-origin: top center; }
+
+/* 飘落花瓣 */
+.petal {
+  position: absolute; top: -20px;
+  width: 8px; height: 8px;
+  background: linear-gradient(135deg, #ffb3c1, #ff8aa2);
+  border-radius: 50% 0 50% 0;
+  opacity: 0.7;
+  animation: petalFall linear infinite;
+}
+@keyframes petalFall { 0% { transform: translateY(-20px) rotate(0); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.6; } 100% { transform: translateY(280px) rotate(360deg); opacity: 0; } }
 
 /* === 登录面板 === */
-.panel { position: relative; z-index: 4; width: 86%; max-width: 340px; background: rgba(24,14,24,0.82); backdrop-filter: blur(16px); border: 2px solid rgba(212,164,55,0.4); border-radius: 24px; padding: 22px 20px 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 6px rgba(212,164,55,0.06); animation: panelIn .5s cubic-bezier(.2,1.4,.4,1) backwards; }
+.panel { position: relative; z-index: 4; width: 86%; max-width: 340px; background: rgba(24,14,24,0.82); backdrop-filter: blur(16px); border: 2px solid rgba(212,164,55,0.4); border-radius: 24px; padding: 22px 20px 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 6px rgba(212,164,55,0.06); animation: panelIn .5s cubic-bezier(.2,1.4,.4,1) backwards; margin-top: 60px; }
 @keyframes panelIn { from { transform: translateY(30px) scale(0.92); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
 .brand { text-align: center; margin-bottom: 18px; }
