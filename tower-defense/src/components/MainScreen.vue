@@ -19,7 +19,7 @@ const rank = RANKS[store.rankIndex]
         <div class="chip cash-chip"><span class="dot c"></span>¥{{ store.cash.toFixed(2) }}</div>
       </div>
       <div class="top-actions">
-        <button class="ic-btn" @click="store.go('exchange')">💰</button>
+        <button class="ic-btn" @click="store.go('exchange')"><span class="ms">payments</span></button>
       </div>
     </header>
 
@@ -51,16 +51,16 @@ const rank = RANKS[store.rankIndex]
     <!-- 功能入口（无底部导航栏，改为浮动入口） -->
     <div class="entries">
       <div class="entry" @click="store.go('commander')">
-        <div class="e-ico">🎓</div><div class="e-t">主帅成长</div>
+        <div class="e-ico"><span class="ms">school</span></div><div class="e-t">主帅成长</div>
       </div>
       <div class="entry" @click="store.go('codex')">
-        <div class="e-ico">📖</div><div class="e-t">兵种图鉴</div>
+        <div class="e-ico"><span class="ms">menu_book</span></div><div class="e-t">兵种图鉴</div>
       </div>
       <div class="entry" @click="store.go('levels')">
-        <div class="e-ico">⚔</div><div class="e-t">关卡征战</div>
+        <div class="e-ico"><span class="ms">military_tech</span></div><div class="e-t">关卡征战</div>
       </div>
       <div class="entry" @click="store.go('exchange')">
-        <div class="e-ico">💎</div><div class="e-t">兑换现金</div>
+        <div class="e-ico"><span class="ms">currency_exchange</span></div><div class="e-t">兑换现金</div>
       </div>
     </div>
   </section>
@@ -79,7 +79,7 @@ const rank = RANKS[store.rankIndex]
 .dot { width: 8px; height: 8px; border-radius: 50%; }
 .g { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
 .c { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
-.ic-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.15); color: var(--gold-light); font-size: 17px; cursor: pointer; }
+.ic-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.15); color: var(--gold-light); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .ic-btn:active { transform: scale(0.9); }
 
 .hero { flex: 1; position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
@@ -105,6 +105,6 @@ const rank = RANKS[store.rankIndex]
 .entries { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px 16px 22px; }
 .entry { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,164,55,0.2); border-radius: 12px; cursor: pointer; transition: transform .15s, background .2s; }
 .entry:active { transform: scale(0.92); background: rgba(212,164,55,0.12); }
-.e-ico { width: 42px; height: 42px; border-radius: 12px; background: rgba(212,164,55,0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.e-ico { width: 42px; height: 42px; border-radius: 12px; background: rgba(212,164,55,0.15); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--gold-light); }
 .e-t { font-size: 11px; color: rgba(245,230,168,0.85); }
 </style>

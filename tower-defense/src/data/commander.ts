@@ -32,13 +32,13 @@ export interface SkillDef {
 }
 
 export const SKILLS: SkillDef[] = [
-  { id: 'drum',    name: '战鼓擂',     unlockRank: 6, cd: 25, icon: '🥁',
+  { id: 'drum',    name: '战鼓擂',     unlockRank: 6, cd: 25, icon: 'campaign',
     desc: '擂鼓助威，全军攻击+40%，持续8秒。' },
-  { id: 'heal',    name: '急救令',     unlockRank: 7, cd: 30, icon: '⚕',
+  { id: 'heal',    name: '急救令',     unlockRank: 7, cd: 30, icon: 'healing',
     desc: '下达急救令，所有友军恢复40%生命。' },
-  { id: 'fire',    name: '火矢齐射',   unlockRank: 8, cd: 40, icon: '🔥',
+  { id: 'fire',    name: '火矢齐射',   unlockRank: 8, cd: 40, icon: 'local_fire_department',
     desc: '天降火箭，对全屏敌人造成150点火焰伤害。' },
-  { id: 'reinforce', name: '天降神兵', unlockRank: 8, cd: 50, icon: '⚔',
+  { id: 'reinforce', name: '天降神兵', unlockRank: 8, cd: 50, icon: 'military_tech',
     desc: '空降4名精锐禁卫至路径中段。' },
 ]
 

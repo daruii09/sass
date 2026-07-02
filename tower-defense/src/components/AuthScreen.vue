@@ -49,17 +49,17 @@ function guest() { store.login('无名小卒', true) }
       </div>
 
       <div class="field">
-        <span class="ic">📱</span>
+        <span class="ic ms">smartphone</span>
         <input v-model="phone" type="tel" maxlength="11" placeholder="手机号" />
       </div>
       <template v-if="mode==='register'">
         <div class="field">
-          <span class="ic">🪖</span>
+          <span class="ic ms">military_tech</span>
           <input v-model="nickname" type="text" placeholder="军中名号 (≥2字)" />
         </div>
       </template>
       <div class="field">
-        <span class="ic">🔑</span>
+        <span class="ic ms">key</span>
         <input v-model="pwd" :type="'password'" placeholder="口令 (≥6位)" @keyup.enter="submit" />
       </div>
 
@@ -114,7 +114,7 @@ function guest() { store.login('无名小卒', true) }
 
 .field { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(212,164,55,0.25); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; transition: border .2s, background .2s; }
 .field:focus-within { border-color: var(--gold); background: rgba(255,255,255,0.11); }
-.ic { font-size: 16px; opacity: 0.7; }
+.ic { font-size: 20px; opacity: 0.8; color: var(--gold); }
 .field input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; font-family: var(--font-body); }
 .field input::placeholder { color: rgba(255,255,255,0.35); }
 

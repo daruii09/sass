@@ -24,7 +24,7 @@ function enter(levelId: number) {
 <template>
   <section class="screen levels grain">
     <header class="hd">
-      <button class="back btn-ghost btn" @click="store.go('main')">←</button>
+      <button class="back btn-ghost btn" @click="store.go('main')"><span class="ms">arrow_back</span></button>
       <h1>关卡征战</h1>
       <span class="spacer"></span>
     </header>
@@ -41,7 +41,7 @@ function enter(levelId: number) {
         <div class="bn">{{ CHAPTERS[ch].name }}</div>
         <div class="be">主要敌军：{{ CHAPTERS[ch].enemy }}</div>
       </div>
-      <div class="stars">⭐ {{ totalStars }}</div>
+      <div class="stars"><span class="ms si">star</span>{{ totalStars }}</div>
     </div>
 
     <div class="grid">
@@ -50,7 +50,7 @@ function enter(levelId: number) {
         <div class="lv-stars">
           <span v-for="s in 3" :key="s" :class="['st', { on: (store.levelStars[lv.id] || 0) >= s }]">★</span>
         </div>
-        <div class="lv-rw">💰{{ lv.reward }}</div>
+        <div class="lv-rw"><span class="ms si">grass</span>{{ lv.reward }}</div>
         <div class="lv-boss" v-if="lv.boss">BOSS</div>
       </div>
     </div>
@@ -60,7 +60,7 @@ function enter(levelId: number) {
 <style scoped>
 .levels { background: linear-gradient(180deg, #1a1a2e 0%, #2a1818 100%); }
 .hd { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(0,0,0,0.4); }
-.back { width: 38px; height: 38px; border-radius: 50%; font-size: 18px; padding: 0; }
+.back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .hd h1 { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
 .spacer { width: 38px; }
 
@@ -75,7 +75,10 @@ function enter(levelId: number) {
 .banner { display: flex; justify-content: space-between; align-items: center; margin: 0 14px 12px; padding: 12px 16px; background: rgba(139,0,0,0.25); border: 1px solid var(--gold); border-radius: 12px; }
 .bn { font-family: var(--font-display); font-size: 17px; color: var(--gold-light); }
 .be { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
-.stars { font-family: var(--font-num); color: var(--gold); font-size: 16px; }
+.stars { font-family: var(--font-num); color: var(--gold); font-size: 16px; display: flex; align-items: center; gap: 2px; }
+.si { font-size: 18px; color: var(--gold); }
+.lv-rw { font-size: 10px; color: var(--gold-light); margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 1px; }
+.lv-rw .si { font-size: 12px; }
 
 .grid { flex: 1; overflow-y: auto; padding: 0 14px 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-content: start; }
 .lv { position: relative; aspect-ratio: 1; background: rgba(255,255,255,0.06); border: 2px solid var(--gold); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s, background .2s; }
@@ -86,6 +89,5 @@ function enter(levelId: number) {
 .lv-stars { display: flex; gap: 2px; margin-top: 4px; }
 .st { font-size: 12px; color: rgba(255,255,255,0.2); }
 .st.on { color: var(--gold); text-shadow: 0 0 6px var(--gold); }
-.lv-rw { font-size: 10px; color: var(--gold-light); margin-top: 4px; }
 .lv-boss { position: absolute; top: 4px; right: 4px; font-size: 9px; padding: 1px 5px; background: var(--crimson); color: #fff; border-radius: 4px; }
 </style>

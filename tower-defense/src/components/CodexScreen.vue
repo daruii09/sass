@@ -26,7 +26,7 @@ const weapons = computed(() => ([
 <template>
   <section class="screen codex grain">
     <header class="hd">
-      <button class="back btn-ghost btn" @click="store.go('main')">←</button>
+      <button class="back btn-ghost btn" @click="store.go('main')"><span class="ms">arrow_back</span></button>
       <h1>军备图鉴</h1>
       <span class="spacer"></span>
     </header>
@@ -46,7 +46,7 @@ const weapons = computed(() => ([
             <div class="nm">{{ u.name }} <span class="tag">{{ u.type==='melee'?'近战':u.type==='ranged'?'远程':u.type==='cavalry'?'骑兵':'攻城' }}</span></div>
             <div class="ds">{{ u.desc }}</div>
             <div class="stats">
-              <span>❤ {{ u.hp }}</span><span>⚔ {{ u.atk }}</span><span>🎯 {{ u.range }}</span><span>🌾 {{ u.cost }}</span>
+              <span><span class="ms si">favorite</span>{{ u.hp }}</span><span><span class="ms si">military_tech</span>{{ u.atk }}</span><span><span class="ms si">gps_fixed</span>{{ u.range }}</span><span><span class="ms si">grass</span>{{ u.cost }}</span>
             </div>
             <div class="lock-tip" v-if="rankIdx + 1 < u.unlockRank">需军阶 {{ u.unlockRank }} 解锁</div>
           </div>
@@ -54,12 +54,12 @@ const weapons = computed(() => ([
       </template>
       <template v-if="tab==='towers'">
         <div v-for="t in Object.values(TOWERS)" :key="t.kind" :class="['item', { lock: rankIdx + 1 < t.unlockRank }]">
-          <img class="im" :src="t.asset" alt="" />
+          <img class="im" :src="t.tiers[0].asset" alt="" />
           <div class="info">
-            <div class="nm">{{ t.name }}</div>
+            <div class="nm">{{ t.name }} <span class="tag tier">3级可升</span></div>
             <div class="ds">{{ t.desc }}</div>
             <div class="stats">
-              <span v-if="t.range">🎯 {{ t.range }}</span><span v-if="t.damage">⚔ {{ t.damage }}</span><span>🌾 {{ t.cost }}</span>
+              <span v-if="t.tiers[0].range"><span class="ms si">gps_fixed</span>{{ t.tiers[0].range }}</span><span v-if="t.tiers[0].damage"><span class="ms si">military_tech</span>{{ t.tiers[0].damage }}</span><span><span class="ms si">grass</span>{{ t.tiers[0].cost }}</span>
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@ const weapons = computed(() => ([
             <div class="nm">{{ e.name }} <span class="tag red" v-if="e.boss">BOSS</span></div>
             <div class="ds">{{ e.desc }}</div>
             <div class="stats">
-              <span>❤ {{ e.hp }}</span><span>⚔ {{ e.atk }}</span><span>🛡 {{ e.armor }}</span><span>💰 {{ e.bounty }}</span>
+              <span><span class="ms si">favorite</span>{{ e.hp }}</span><span><span class="ms si">military_tech</span>{{ e.atk }}</span><span><span class="ms si">shield</span>{{ e.armor }}</span><span><span class="ms si">payments</span>{{ e.bounty }}</span>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ const weapons = computed(() => ([
 <style scoped>
 .codex { background: linear-gradient(180deg, #0d1b2a 0%, #1a1a2e 100%); }
 .hd { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(0,0,0,0.4); }
-.back { width: 38px; height: 38px; border-radius: 50%; font-size: 18px; padding: 0; }
+.back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .hd h1 { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
 .spacer { width: 38px; }
 .tabs { display: flex; gap: 6px; padding: 0 14px 12px; }
@@ -109,7 +109,10 @@ const weapons = computed(() => ([
 .nm { font-family: var(--font-display); font-size: 16px; color: var(--gold-light); display: flex; align-items: center; gap: 6px; }
 .tag { font-family: var(--font-body); font-size: 10px; padding: 1px 6px; border-radius: 6px; background: rgba(46,125,91,0.3); color: #6BFF9E; }
 .tag.red { background: rgba(139,0,0,0.4); color: #ff8888; }
+.tag.tier { background: rgba(212,164,55,0.2); color: var(--gold); }
 .ds { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; line-height: 1.4; }
-.stats { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; color: var(--gold-light); flex-wrap: wrap; }
+.stats { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; color: var(--gold-light); flex-wrap: wrap; align-items: center; }
+.stats span { display: inline-flex; align-items: center; gap: 2px; }
+.si { font-size: 14px; color: var(--gold); }
 .lock-tip { font-size: 11px; color: #ff9966; margin-top: 6px; }
 </style>

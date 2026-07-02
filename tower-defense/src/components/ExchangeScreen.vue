@@ -30,7 +30,7 @@ function doExchange() {
     <div class="overlay"></div>
 
     <header class="hd">
-      <button class="back btn-ghost btn" @click="store.go('main')">←</button>
+      <button class="back btn-ghost btn" @click="store.go('main')"><span class="ms">arrow_back</span></button>
       <h1>兑换现金</h1>
       <span class="spacer"></span>
     </header>
@@ -57,7 +57,7 @@ function doExchange() {
       <div class="input-card card">
         <div class="ic-label">兑换金币数量</div>
         <div class="ic-input">
-          <span class="ic-coin">💰</span>
+          <span class="ic-coin ms">paid</span>
           <input type="number" v-model.number="amount" :step="1000" :min="0" :max="store.gold" />
         </div>
         <div class="ic-quick">
@@ -93,7 +93,7 @@ function doExchange() {
 .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.18; }
 .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,20,10,0.6), rgba(10,4,10,0.85)); }
 .hd { position: relative; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
-.back { width: 38px; height: 38px; border-radius: 50%; font-size: 18px; padding: 0; }
+.back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .hd h1 { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
 .spacer { width: 38px; }
 
@@ -113,7 +113,7 @@ function doExchange() {
 .input-card { padding: 16px; }
 .ic-label { font-size: 12px; color: rgba(255,255,255,0.6); }
 .ic-input { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 10px; border: 1px solid rgba(212,164,55,0.3); }
-.ic-coin { font-size: 18px; }
+.ic-coin { font-size: 22px; color: var(--gold); }
 .ic-input input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-family: var(--font-num); font-size: 20px; }
 .ic-quick { display: flex; gap: 6px; margin-top: 10px; }
 .ic-quick button { flex: 1; padding: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(212,164,55,0.3); border-radius: 8px; color: var(--gold-light); font-size: 12px; cursor: pointer; }

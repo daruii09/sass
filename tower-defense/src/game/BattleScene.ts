@@ -1,4 +1,4 @@
-// Phaser 战斗场景：曲线塔防核心
+// Phaser 战斗场景：曲线塔防核心，集成音效/语音/特效/塔升级
 import Phaser from 'phaser'
 import { PathManager } from './PathManager'
 import { SlotManager } from './SlotManager'
@@ -6,16 +6,19 @@ import { Enemy } from './Enemy'
 import { Tower } from './Tower'
 import { Soldier } from './Soldier'
 import { Projectile } from './Projectile'
+import { Effects } from './Effects'
+import { audio } from './audio'
+import { voice } from './voice'
 import { LevelDef } from '../data/levels'
 import { ENEMIES } from '../data/enemies'
-import { TOWERS, TowerKind, TowerDef } from '../data/towers'
-import { UNITS, UnitDef, unitById } from '../data/units'
+import { TOWERS, TowerKind } from '../data/towers'
+import { UNITS, unitById } from '../data/units'
 
 export interface BattleConfig {
   level: LevelDef
   grainMax: number
-  morale: number   // 攻击加成%
-  cmd: number      // 部署上限
+  morale: number
+  cmd: number
   rankIndex: number
 }
 
@@ -31,22 +34,21 @@ export interface BattleCallbacks {
   onWave: (cur: number, total: number) => void
   onCmd: (used: number, max: number) => void
   onSelectSlot: (slotIdx: number | null) => void
+  onSelectTower: (towerIdx: number | null, kind: TowerKind | null, tier: number, canUp: boolean, upCost: number) => void
   onSpeed: (mul: number) => void
   onSkillReady: (skillId: string, ready: boolean, cdLeft: number) => void
   onEnd: (r: BattleResult) => void
 }
-
-interface DeployedSoldier extends Soldier { _cost: number }
 
 export class BattleScene extends Phaser.Scene {
   cfg!: BattleConfig
   cb!: BattleCallbacks
   path!: PathManager
   slots!: SlotManager
+  effects!: Effects
   enemies: Enemy[] = []
   towers: Tower[] = []
   projectiles: Projectile[] = []
-  deployed: DeployedSoldier[] = []
   grain = 0
   baseHp = 0
   baseHpMax = 0
@@ -56,10 +58,10 @@ export class BattleScene extends Phaser.Scene {
   ended = false
   kills = 0
   selectedSlot = -1
+  selectedTower = -1
   speedMul = 1
   skillCds: Record<string, number> = {}
-  moraleBuff = 0  // 战鼓擂剩余时间
-  unitKeys: Record<string, string> = {}
+  moraleBuff = 0
   projKeys: Record<string, string> = {}
 
   constructor() { super('battle') }
@@ -73,13 +75,13 @@ export class BattleScene extends Phaser.Scene {
     this.enemies = []
     this.towers = []
     this.projectiles = []
-    this.deployed = []
     this.ended = false
     this.kills = 0
     this.waveIdx = 0
     this.spawnQueue = []
     this.spawnTimer = 0
     this.selectedSlot = -1
+    this.selectedTower = -1
     this.speedMul = 1
     this.skillCds = {}
     this.moraleBuff = 0
@@ -87,56 +89,53 @@ export class BattleScene extends Phaser.Scene {
 
   preload() {
     const loaders: { key: string; url: string }[] = []
-    // 背景
     loaders.push({ key: 'bg', url: this.cfg.level.bg })
-    // 建筑
-    loaders.push({ key: 'castle', url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('中国古代青砖城关要塞城门楼') + '&image_size=portrait_4_3' })
-    loaders.push({ key: 'camp', url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('敌方蛮族木栅营寨') + '&image_size=portrait_4_3' })
-    // 塔
-    Object.values(TOWERS).forEach(t => loaders.push({ key: t.kind, url: t.asset }))
-    // 兵种
-    UNITS.forEach(u => {
-      loaders.push({ key: u.id, url: u.asset })
-      this.unitKeys[u.id] = u.id
+    loaders.push({ key: 'castle', url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('3D rendered ancient Chinese blue brick fortress gatehouse, isometric, standalone') + '&image_size=portrait_4_3' })
+    loaders.push({ key: 'camp', url: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('3D rendered barbarian wooden palisade camp, isometric') + '&image_size=portrait_4_3' })
+    // 塔：3 级素材
+    Object.values(TOWERS).forEach(t => {
+      t.tiers.forEach((tier, i) => loaders.push({ key: `${t.kind}${i + 1}`, url: tier.asset }))
     })
+    // 兵种
+    UNITS.forEach(u => loaders.push({ key: u.id, url: u.asset }))
     // 敌人
     Object.values(ENEMIES).forEach(e => loaders.push({ key: e.id, url: e.asset }))
-    // 弹道占位
+    // 箭矢占位纹理（用 graphics 生成）
     this.projKeys = { archer: 'shield', ballista: 'spear', catapult: 'catapult', proj: 'archer' }
 
     this.load.crossOrigin = 'anonymous'
     loaders.forEach(l => {
       if (!this.textures.exists(l.key)) this.load.image(l.key, l.url)
     })
-    // 全局供 Tower/Soldier/Projectile 使用
     ;(window as any).__UNIT_LOOKUP__ = unitById
+    // 塔选中回调
+    ;(this as any).__SELECT_TOWER__ = (tower: Tower) => {
+      const idx = this.towers.indexOf(tower)
+      this.selectedTower = idx
+      this.selectedSlot = -1
+      this.cb.onSelectSlot(null)
+      this.towers.forEach((t, i) => t.showRange(i === idx))
+      this.cb.onSelectTower(idx, tower.def.kind, tower.tierIdx + 1, tower.canUpgrade(), tower.upgradeCost())
+    }
   }
 
   create() {
     const w = this.scale.width, h = this.scale.height
-    // 背景
-    const bg = this.add.image(w / 2, h / 2, 'bg').setDisplaySize(w, h)
-    bg.setAlpha(0.92)
+    this.effects = new Effects(this)
+
+    const bg = this.add.image(w / 2, h / 2, 'bg').setDisplaySize(w, h).setAlpha(0.92)
     // 暗角
-    const vig = this.add.graphics()
-    vig.fillStyle(0x000000, 0.35).fillRect(0, 0, w, h)
-    vig.fillStyle(0x000000, 0).fillRect(0, 0, w, h)
-    // 渐变暗角（用多层椭圆）
     for (let i = 0; i < 6; i++) {
       this.add.ellipse(w / 2, h / 2, w * (1.4 + i * 0.1), h * (1.4 + i * 0.1), 0x000000, 0.05).setDepth(0)
     }
 
-    // 路径
     this.path = new PathManager(this, w, h)
 
-    // 起点敌方营地
     const camp = this.add.image(this.path.start.x, this.path.start.y - 30, 'camp').setDisplaySize(90, 90).setOrigin(0.5, 0.85).setDepth(this.path.start.y)
     this.tweens.add({ targets: camp, alpha: { from: 0.6, to: 1 }, duration: 1200, yoyo: true, repeat: -1 })
-    // 终点我方城堡
     const castle = this.add.image(this.path.end.x, this.path.end.y - 10, 'castle').setDisplaySize(110, 110).setOrigin(0.5, 0.85).setDepth(this.path.end.y)
     this.tweens.add({ targets: castle, scaleX: 1.02, scaleY: 1.02, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.inOut' })
 
-    // 塔位
     this.slots = new SlotManager(this, this.path, w, h)
     this.slots.slots.forEach((s, i) => {
       const ring = this.add.circle(s.x, s.y, 22, 0xd4a437, 0.12).setStrokeStyle(2, 0xd4a437, 0.7).setDepth(s.y)
@@ -147,10 +146,8 @@ export class BattleScene extends Phaser.Scene {
       this.tweens.add({ targets: [ring, plus], alpha: { from: 0.5, to: 1 }, duration: 900, yoyo: true, repeat: -1 })
     })
 
-    // 全局引用供 Projectile 溅射访问
     ;(this as any).__ENEMIES__ = this.enemies
 
-    // 构建出兵队列
     this.cfg.level.waves.forEach(wv => {
       for (let i = 0; i < wv.count; i++) {
         this.spawnQueue.push({ enemy: wv.enemy, at: (this.spawnQueue.length === 0 ? 2 : 0) + i * wv.gap })
@@ -162,24 +159,32 @@ export class BattleScene extends Phaser.Scene {
     this.cb.onWave(0, this.cfg.level.waves.length)
     this.cb.onCmd(0, this.cfg.cmd)
     ;['drum', 'heal', 'fire', 'reinforce'].forEach(id => this.cb.onSkillReady(id, true, 0))
+
+    audio.resume()
+    audio.startMusic()
+    voice.wave()
   }
 
   private selectSlot(i: number) {
     this.selectedSlot = i
+    this.selectedTower = -1
+    this.towers.forEach(t => t.showRange(false))
+    this.cb.onSelectTower(null, null, 0, false, 0)
     this.cb.onSelectSlot(i)
+    audio.uiClick()
   }
 
-  // 由 Vue 调用：在选中塔位建造塔
   buildTower(kind: TowerKind): boolean {
     if (this.selectedSlot < 0) return false
     const slot = this.slots.slots[this.selectedSlot]
     if (!slot || slot.occupied) return false
     const def = TOWERS[kind]
-    if (this.grain < def.cost) return false
+    const cost = def.tiers[0].cost
+    if (this.grain < cost) return false
     if (this.cfg.rankIndex + 1 < def.unlockRank) return false
-    this.grain -= def.cost
+    this.grain -= cost
     const unitDef = def.soldierId ? unitById(def.soldierId) : undefined
-    const tower = new Tower(this, def, slot.x, slot.y, unitDef)
+    const tower = new Tower(this, def, slot.x, slot.y, unitDef, this.effects, this.projKeys)
     this.towers.push(tower)
     slot.occupied = true
     if (slot.marker) slot.marker.destroy()
@@ -189,35 +194,61 @@ export class BattleScene extends Phaser.Scene {
     return true
   }
 
-  // 由 Vue 调用：部署士兵到路径中段
+  upgradeTower(): boolean {
+    if (this.selectedTower < 0) return false
+    const tower = this.towers[this.selectedTower]
+    if (!tower || !tower.canUpgrade()) return false
+    const cost = tower.upgradeCost()
+    if (this.grain < cost) return false
+    this.grain -= cost
+    const unitDef = tower.def.soldierId ? unitById(tower.def.soldierId) : undefined
+    tower.upgrade(unitDef)
+    this.cb.onGrain(this.grain)
+    this.cb.onSelectTower(this.selectedTower, tower.def.kind, tower.tierIdx + 1, tower.canUpgrade(), tower.upgradeCost())
+    return true
+  }
+
   deployUnit(unitId: string): boolean {
     const def = unitById(unitId)
     if (!def) return false
     if (this.grain < def.cost) return false
     if (this.cfg.rankIndex + 1 < def.unlockRank) return false
-    if (this.deployed.filter(s => !s.dead).length >= this.cfg.cmd) return false
+    if (this.deployedCount() >= this.cfg.cmd) return false
     this.grain -= def.cost
     const p = this.path.getPoint(0.45)
-    const s = new Soldier(this, def, p.x, p.y, { x: p.x, y: p.y }) as DeployedSoldier
+    const s = new Soldier(this, def, p.x, p.y, { x: p.x, y: p.y }, this.effects)
     s.spawnEffect()
-    this.deployed.push(s)
+    audio.deploy()
+    voice.deploy(def.type)
     this.cb.onGrain(this.grain)
-    this.cb.onCmd(this.deployed.filter(x => !x.dead).length, this.cfg.cmd)
+    this.cb.onCmd(this.deployedCount(), this.cfg.cmd)
     return true
   }
 
-  // 由 Vue 调用：释放主帅技能
+  private deployedCount(): number {
+    return this.deployedSoldiers().length
+  }
+  private deployedSoldiers(): Soldier[] {
+    // 从场景中收集所有未被塔持有的士兵（部署的）
+    return (this as any).__DEPLOYED__ || []
+  }
+
   useSkill(skillId: string) {
     if (this.skillCds[skillId] > 0) return
     const cds: Record<string, number> = { drum: 25, heal: 30, fire: 40, reinforce: 50 }
     if (skillId === 'drum') {
       this.moraleBuff = 8
+      this.effects.skillFlash()
+      this.effects.shake(0.008, 200)
       this.showToast('战鼓擂！全军攻击提升')
     } else if (skillId === 'heal') {
-      this.deployed.forEach(s => { if (!s.dead) s.hp = Math.min(s.maxHp, s.hp + s.maxHp * 0.4) })
-      this.towers.forEach(t => t.soldiers.forEach(s => { if (!s.dead) s.hp = Math.min(s.maxHp, s.hp + s.maxHp * 0.4) }))
+      this.allSoldiers().forEach(s => { if (!s.dead) s.hp = Math.min(s.maxHp, s.hp + s.maxHp * 0.4) })
+      this.effects.skillFlash(0x4caf50)
       this.showToast('急救令！士兵已治疗')
     } else if (skillId === 'fire') {
+      this.effects.fireRain()
+      this.effects.skillFlash(0xff6600)
+      this.effects.shake(0.01, 300)
       this.enemies.forEach(e => { if (!e.dead) e.damage(150, 'fire') })
       this.showToast('火矢齐射！')
     } else if (skillId === 'reinforce') {
@@ -225,14 +256,25 @@ export class BattleScene extends Phaser.Scene {
       if (guard) {
         for (let i = 0; i < 4; i++) {
           const p = this.path.getPoint(0.5 + i * 0.02)
-          const s = new Soldier(this, guard, p.x, p.y, { x: p.x, y: p.y }) as DeployedSoldier
+          const s = new Soldier(this, guard, p.x, p.y, { x: p.x, y: p.y }, this.effects)
           s.spawnEffect()
-          this.deployed.push(s)
+          ;(this as any).__DEPLOYED__ = (this as any).__DEPLOYED__ || []
+          ;(this as any).__DEPLOYED__.push(s)
         }
       }
+      this.effects.skillFlash()
       this.showToast('天降神兵！')
     }
     this.skillCds[skillId] = cds[skillId]
+    audio.skill()
+    voice.skill(skillId === 'drum' ? '战鼓擂' : skillId === 'heal' ? '急救令' : skillId === 'fire' ? '火矢齐射' : '天降神兵')
+  }
+
+  private allSoldiers(): Soldier[] {
+    const arr: Soldier[] = []
+    this.towers.forEach(t => t.soldiers.forEach(s => arr.push(s)))
+    if ((this as any).__DEPLOYED__) (this as any).__DEPLOYED__.forEach((s: Soldier) => arr.push(s))
+    return arr
   }
 
   setSpeed(mul: number) { this.speedMul = mul; this.cb.onSpeed(mul) }
@@ -249,47 +291,38 @@ export class BattleScene extends Phaser.Scene {
     if (this.ended) return
     const dt = (deltaMs / 1000) * this.speedMul
 
-    // 出兵
     this.spawnTimer += dt
     while (this.spawnQueue.length && this.spawnQueue[0].at <= this.spawnTimer) {
       const spec = this.spawnQueue.shift()!
       const def = ENEMIES[spec.enemy]
-      if (def) {
-        const e = new Enemy(this, def, this.path, def.id)
-        this.enemies.push(e)
-      }
+      if (def) this.enemies.push(new Enemy(this, def, this.path, def.id, this.effects))
     }
     ;(this as any).__ENEMIES__ = this.enemies
 
-    // 敌人前进
     this.enemies.forEach(e => e.advance(dt))
 
-    // 阻挡判定：敌人接近士兵时停下
+    // 阻挡判定
     this.enemies.forEach(e => {
       if (e.dead || e.reached) return
       let blocked = false
-      const allSoldiers = [...this.deployed, ...this.towers.flatMap(t => t.soldiers)]
-      for (const s of allSoldiers) {
+      for (const s of this.allSoldiers()) {
         if (s.dead) continue
         if (e.distanceTo(s.x, s.y) < 30) { blocked = true; break }
       }
       e.setTarget(blocked ? { x: e.sprite.x, y: e.sprite.y } : null)
     })
 
-    // 士兵攻击敌人（被阻挡的敌人受士兵伤害）
-    const allSoldiers = [...this.deployed, ...this.towers.flatMap(t => t.soldiers)]
-    allSoldiers.forEach(s => s.update(dt, this.enemies, this.projectiles))
+    this.allSoldiers().forEach(s => s.update(dt, this.enemies))
 
-    // 被阻挡的敌人反击士兵
+    // 敌人反击士兵
     this.enemies.forEach(e => {
       if (e.dead || e.reached || !e.target) return
       e.attackCd -= dt
       if (e.attackCd <= 0) {
         e.attackCd = 1.0
-        // 找最近士兵攻击
         let best: Soldier | null = null
         let bd = 40
-        for (const s of allSoldiers) {
+        for (const s of this.allSoldiers()) {
           if (s.dead) continue
           const d = e.distanceTo(s.x, s.y)
           if (d < bd) { bd = d; best = s }
@@ -298,54 +331,57 @@ export class BattleScene extends Phaser.Scene {
       }
     })
 
-    // 塔射击
-    this.towers.forEach(t => t.update(dt, this.enemies, this.projectiles, this.projKeys))
+    this.towers.forEach(t => t.update(dt, this.enemies, this.projectiles, t.def.soldierId ? unitById(t.def.soldierId) : undefined))
 
-    // 战鼓buff衰减
     if (this.moraleBuff > 0) this.moraleBuff -= dt
 
-    // 技能冷却
-    let skillChanged = false
     for (const id of Object.keys(this.skillCds)) {
-      if (this.skillCds[id] > 0) {
-        this.skillCds[id] = Math.max(0, this.skillCds[id] - dt)
-        skillChanged = true
-      }
+      if (this.skillCds[id] > 0) this.skillCds[id] = Math.max(0, this.skillCds[id] - dt)
       this.cb.onSkillReady(id, this.skillCds[id] <= 0, this.skillCds[id])
     }
 
-    // 波次进度
     const totalToSpawn = this.cfg.level.waves.reduce((s, w) => s + w.count, 0)
     const spawned = totalToSpawn - this.spawnQueue.length
     this.cb.onWave(Math.min(this.cfg.level.waves.length, Math.floor(spawned / Math.max(1, Math.ceil(totalToSpawn / this.cfg.level.waves.length))) + 1), this.cfg.level.waves.length)
 
-    // 到达终点扣血
     this.enemies.forEach(e => {
       if (e.reached && !e.dead) {
         this.baseHp -= e.def.damage
         e.die()
+        audio.baseHit()
+        this.effects.shake(0.012, 150)
         this.cb.onBaseHp(Math.max(0, this.baseHp), this.baseHpMax)
       }
     })
 
-    // 清理死亡敌人，计金币
     const alive: Enemy[] = []
     this.enemies.forEach(e => {
       if (e.dead) {
-        if (!e.reached) { this.kills++; this.grain += Math.floor(e.def.bounty * 0.5); this.cb.onGrain(this.grain) }
+        if (!e.reached) {
+          this.kills++
+          this.grain += Math.floor(e.def.bounty * 0.5)
+          this.cb.onGrain(this.grain)
+          voice.kill()
+        }
       } else alive.push(e)
     })
     this.enemies = alive
     ;(this as any).__ENEMIES__ = this.enemies
 
-    // 部署士兵清理
-    this.deployed = this.deployed.filter(s => !s.dead)
-    this.cb.onCmd(this.deployed.length, this.cfg.cmd)
+    if ((this as any).__DEPLOYED__) {
+      const arr = (this as any).__DEPLOYED__ as Soldier[]
+      const kept = arr.filter(s => !s.dead)
+      ;(this as any).__DEPLOYED__ = kept
+      this.cb.onCmd(kept.length, this.cfg.cmd)
+    }
 
-    // 胜负判定
-    if (this.baseHp <= 0) { this.ended = true; this.cb.onEnd({ win: false, gold: Math.floor(this.cfg.level.reward / 5), kills: this.kills }) }
-    else if (this.spawnQueue.length === 0 && this.enemies.length === 0) {
+    if (this.baseHp <= 0) {
       this.ended = true
+      audio.lose(); voice.lose()
+      this.cb.onEnd({ win: false, gold: Math.floor(this.cfg.level.reward / 5), kills: this.kills })
+    } else if (this.spawnQueue.length === 0 && this.enemies.length === 0) {
+      this.ended = true
+      audio.win(); voice.win()
       this.cb.onEnd({ win: true, gold: this.cfg.level.reward + Math.floor(this.baseHp / this.baseHpMax * this.cfg.level.reward * 0.3), kills: this.kills })
     }
   }

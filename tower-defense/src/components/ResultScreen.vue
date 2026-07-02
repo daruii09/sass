@@ -27,7 +27,7 @@ function retry() { store.go('battle') }
       <div class="reward card" v-if="r.win">
         <div class="rw-row"><span>关卡奖励</span><span class="gold">+{{ r.gold }}</span></div>
         <div class="rw-row sub"><span>击杀敌军</span><span>{{ (r as any).kills ?? 0 }} 人</span></div>
-        <div class="coin-anim">💰</div>
+        <div class="coin-anim"><span class="ms">paid</span></div>
       </div>
       <div class="reward card" v-else>
         <div class="rw-row"><span>抚恤金币</span><span class="gold">+{{ r.gold }}</span></div>
@@ -62,7 +62,7 @@ function retry() { store.go('battle') }
 .rw-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: rgba(255,255,255,0.85); }
 .rw-row.sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 8px; }
 .gold { font-family: var(--font-num); color: var(--gold); font-size: 22px; font-weight: 700; }
-.coin-anim { position: absolute; right: 14px; top: 10px; font-size: 36px; animation: spin 2s linear infinite; }
+.coin-anim { position: absolute; right: 14px; top: 10px; font-size: 40px; color: var(--gold); animation: spin 2s linear infinite; }
 @keyframes spin { to { transform: rotateY(360deg); } }
 
 .actions { width: 100%; display: flex; gap: 12px; }

@@ -9,7 +9,7 @@ const idx = store.rankIndex
 <template>
   <section class="screen commander grain">
     <header class="hd">
-      <button class="back btn-ghost btn" @click="store.go('main')">←</button>
+      <button class="back btn-ghost btn" @click="store.go('main')"><span class="ms">arrow_back</span></button>
       <h1>主帅成长</h1>
       <span class="spacer"></span>
     </header>
@@ -40,7 +40,7 @@ const idx = store.rankIndex
       <h2 class="sec">主帅技能</h2>
       <div class="skills">
         <div v-for="s in SKILLS" :key="s.id" :class="['skill', { lock: idx + 1 < s.unlockRank }]">
-          <div class="sk-ico">{{ s.icon }}</div>
+          <div class="sk-ico"><span class="ms">{{ s.icon }}</span></div>
           <div class="sk-info">
             <div class="sk-name">{{ s.name }} <span class="cd">CD {{ s.cd }}s</span></div>
             <div class="sk-desc">{{ s.desc }}</div>
@@ -68,7 +68,7 @@ const idx = store.rankIndex
 <style scoped>
 .commander { background: linear-gradient(180deg, #1a1024 0%, #2a1a10 100%); }
 .hd { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: rgba(0,0,0,0.4); }
-.back { width: 38px; height: 38px; border-radius: 50%; font-size: 18px; padding: 0; }
+.back { width: 38px; height: 38px; border-radius: 50%; font-size: 22px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .hd h1 { font-family: var(--font-display); font-size: 20px; color: var(--gold); letter-spacing: 2px; }
 .spacer { width: 38px; }
 .body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
@@ -93,7 +93,7 @@ const idx = store.rankIndex
 .skills { display: flex; flex-direction: column; gap: 8px; }
 .skill { display: flex; gap: 10px; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,164,55,0.2); border-radius: 12px; }
 .skill.lock { opacity: 0.45; }
-.sk-ico { width: 42px; height: 42px; border-radius: 10px; background: var(--crimson); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.sk-ico { width: 42px; height: 42px; border-radius: 10px; background: var(--crimson); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--gold-light); flex-shrink: 0; }
 .sk-info { flex: 1; }
 .sk-name { font-size: 14px; font-weight: 700; color: var(--gold-light); display: flex; align-items: center; gap: 8px; }
 .cd { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 400; }
